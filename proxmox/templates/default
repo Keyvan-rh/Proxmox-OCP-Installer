@@ -1,0 +1,17 @@
+default menu.c32
+ prompt 0
+ timeout 900
+ ONTIMEOUT
+ menu title ######## PXE Boot Menu ########
+ label 1
+ menu label ^1) Install Bootstrap Node
+ KERNEL http://192.168.1.125:8080/install/rhcos-live-kernel-x86_64
+ APPEND initrd=http://192.168.1.125:8080/install/rhcos-live-initramfs.x86_64.img coreos.live.rootfs_url=http://192.168.1.125:8080/install/rhcos-live-rootfs.x86_64.img coreos.inst.install_dev=/dev/sda coreos.inst.ignition_url=http://192.168.1.125:8080/ignition/bootstrap.ign
+ label 2
+ menu label ^2) Install Master Node
+ KERNEL http://192.168.1.125:8080/install/rhcos-live-kernel-x86_64
+ APPEND initrd=http://192.168.1.125:8080/install/rhcos-live-initramfs.x86_64.img coreos.live.rootfs_url=http://192.168.1.125:8080/install/rhcos-live-rootfs.x86_64.img coreos.inst.install_dev=/dev/sda coreos.inst.ignition_url=http://192.168.1.125:8080/ignition/master.ign
+ label 3
+ menu label ^3) Install Worker Node
+ KERNEL http://192.168.1.125:8080/install/rhcos-live-kernel-x86_64
+ APPEND initrd=http://192.168.1.125:8080/install/rhcos-live-initramfs.x86_64.img coreos.live.rootfs_url=http://192.168.1.125:8080/install/rhcos-live-rootfs.x86_64.img coreos.inst.install_dev=/dev/sda coreos.inst.ignition_url=http://192.168.1.125:8080/ignition/worker.ign

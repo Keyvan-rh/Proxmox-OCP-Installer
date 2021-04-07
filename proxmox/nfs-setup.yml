@@ -1,0 +1,19 @@
+- name: Prep ignition files
+  hosts: localhost
+  become: true
+  tasks:
+    - name: Create change OCP project to default
+      shell:
+        cmd: oc project default
+    - name: Create nfs RBAC
+      shell:
+        cmd: oc create -f templates/nfs-rbac.yaml -n default
+    - name: Create storage class
+      shell:
+        cmd: oc create -f templates/nfs-sc.yaml -n default
+    - name: deploy nfs provisioner
+      shell:
+        cmd: oc create -f templates/OMV-nfs-provisioner-deployment.yaml -n default
+    - name: set the nfs provider as default storage provider
+      shell:
+        cmd: oc patch storageclass nfs -p '{"metadata": {"annotations": {"storageclass.kubernetes.io/is-default-class": "true"}}}'

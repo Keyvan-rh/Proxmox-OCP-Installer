@@ -1,0 +1,76 @@
+- name: Prep ignition files
+  hosts: localhost
+  become: true
+  vars_files:
+    - 22-vars.yml
+  environment:
+    KUBECONFIG:     
+  tasks:
+    - name: Setup Auto pxe boot
+      copy:
+        src: ./templates/{{ item.ign }}
+        dest: /var/lib/tftpboot/pxelinux.cfg/{{ ( '01-' + macstart + mac + item.macend ) | replace(':','-') }}
+        force: no
+        mode: "u=rx,g=rx,o=rx"
+      loop: "{{ vms_info }}"
+    - name: Create ignition files
+      shell:
+        chdir: /root/OCPHelper-NoDNS
+        cmd: ./1122-prep-ignitions.sh
+- name: Create OCP VMs and start them in sequence
+  hosts: pve
+  become: true
+  vars_files:
+    - 22-vars.yml 
+  tasks:
+    - name: Create new VMs for OCP cluster 
+      command: qm create "{{ vimidStart }}{{ item.vimid }}" --net0 virtio="{{ macstart }}{{ mac }}{{ item.macend }}",bridge=vmbr0 --name "{{ item.name }}"  --scsihw virtio-scsi-pci --scsi0 VMs:150,format=qcow2 --cores "{{ item.cpu }}" --memory "{{ item.mem }}"
+      loop: "{{ vms_info }}"
+    - name: Start Bootstrap VM 
+      command: qm start "{{ vimidStart }}{{ vms_info[0].vimid }}" 
+    - name: Pause for 7 minutes to build app cache
+      pause:
+        minutes: 10
+    - name: Start Masters VMs
+      command: qm start "{{ vimidStart }}{{ item.vimid }}" 
+      loop:
+        - "{{ vms_info[1] }}"
+        - "{{ vms_info[2] }}"
+        - "{{ vms_info[3] }}"
+    - name: Pause for 7 minutes to build app cache
+      pause:
+        minutes: 15
+    - name: Stop VMs for OCP
+      command: qm stop "{{ vimidStart }}{{vms_info[0].vimid}}"
+    - name: Start workers VMs
+      command: qm start "{{ vimidStart }}{{ item.vimid }}" 
+      loop:
+        - "{{ vms_info[4] }}"
+        - "{{ vms_info[5] }}"
+        - "{{ vms_info[6] }}"
+    - name: Pause for 7 minutes to build app cache
+      pause:
+        minutes: 5
+- name: Copy auth and approve certs
+  hosts: localhost
+  become: true
+  tasks:
+    - name: Copy OCP Auth to ocp4 folder
+      copy:
+        src: ../ocp22/auth
+        dest: ../ocp4
+        force: no
+        mode: "u=rx,g=rwx,o=rwx" 
+    - name: Copy OCP Auth to for generic access
+      copy:
+        src: ../ocp22/auth
+        dest: ../../ocp22
+        force: no
+        mode: "u=rx,g=rwx,o=rwx"
+    - name: Create ignition files
+      shell:
+        chdir: /root/OCPHelper-NoDNS
+        cmd: ./31-approve-certs.sh
+      loop: [1,2,3,4,5,6,7,8,9]
+      loop_control:
+        pause: 120
