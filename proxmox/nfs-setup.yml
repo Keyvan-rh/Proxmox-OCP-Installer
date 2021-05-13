@@ -14,6 +14,3 @@
     - name: deploy nfs provisioner
       shell:
         cmd: oc create -f templates/OMV-nfs-provisioner-deployment.yaml -n default
-    - name: set the nfs provider as default storage provider
-      shell:
-        cmd: oc patch storageclass nfs -p '{"metadata": {"annotations": {"storageclass.kubernetes.io/is-default-class": "true"}}}'
