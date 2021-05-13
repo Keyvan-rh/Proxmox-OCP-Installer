@@ -1,11 +1,9 @@
 rm -rf ocp4
-rm -rf ocp11
-mkdir ocp11
 mkdir ocp4
 mkdir /var/www/html/ignition
 rm -f /var/www/html/ignition/*
-cp ./backup/install-config.ocp11 ./ocp11/install-config.yaml
-cd ./ocp11
+cp ./backup/install-config.ocp ./ocp4/install-config.yaml
+cd ./ocp4
 eval "$(ssh-agent -s)"
 ssh-add ~/.ssh/id_rsa
 openshift-install create manifests
