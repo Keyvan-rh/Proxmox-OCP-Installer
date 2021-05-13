@@ -1,9 +1,0 @@
-clusterID: ocp33
-macstart: '52:50:56:'
-mac: '33'
-vimidStart: '50'
-vms_info:
-   - { vimid: '0', name: 'bootstrap33', macend: ':11:11', cpu: '8', mem: '30480', ign: 'bootstrap' }
-   - { vimid: '1', name: 'master000', macend: ':22:11', cpu: '8', mem: '30480', ign: 'masters' }
-   - { vimid: '2', name: 'master001', macend: ':22:22', cpu: '8', mem: '30480', ign: 'masters' }
-   - { vimid: '3', name: 'master002', macend: ':22:33', cpu: '8', mem: '30480', ign: 'masters' }

@@ -1,0 +1,43 @@
+proxmox:
+  ip: 192.168.1.74
+  name: 'pve'
+clusterID: ocp11
+domain: keyvan.home
+macstart: '52:50:56:'
+mac: '11'
+vimidStart: '20'
+vms_info:
+   - { vimid: '0', name: 'bootstrap11', macend: ':11:11', cpu: '8', mem: '16384', ign: 'pxe-bootstrap.j2', ipadd: '192.168.1.20' }
+   - { vimid: '1', name: 'master0', macend: ':22:11', cpu: '8', mem: '16384', ign: 'pxe-master.j2', ipadd: '192.168.1.21' }
+   - { vimid: '2', name: 'master1', macend: ':22:22', cpu: '8', mem: '16384', ign: 'pxe-master.j2', ipadd: '192.168.1.22' }
+   - { vimid: '3', name: 'master2', macend: ':22:33', cpu: '8', mem: '16384', ign: 'pxe-master.j2', ipadd: '192.168.1.23' }
+   - { vimid: '4', name: 'worker0', macend: ':33:11', cpu: '8', mem: '32768', ign: 'pxe-worker.j2', ipadd: '192.168.1.11' }
+   - { vimid: '5', name: 'worker1', macend: ':33:22', cpu: '8', mem: '32768', ign: 'pxe-worker.j2', ipadd: '192.168.1.12' }
+   - { vimid: '6', name: 'worker2', macend: ':33:33', cpu: '8', mem: '32768', ign: 'pxe-worker.j2', ipadd: '192.168.1.13' }
+packages:
+   - httpd
+   - dnsmasq
+   - tftp-server
+   - tftp
+   - haproxy
+   - syslinux
+   - bind-utils
+   - tar
+ports:
+   - 67/udp
+   - 53/tcp
+   - 53/udp
+   - 443/tcp
+   - 80/tcp
+   - 8080/tcp
+   - 6443/tcp
+   - 6443/udp
+   - 22623/tcp
+   - 22623/udp
+   - 9000/tcp
+   - 69/udp
+   - 111/tcp
+   - 2049/tcp
+   - 20048/tcp
+   - 50825/tcp
+   - 53248/tcp

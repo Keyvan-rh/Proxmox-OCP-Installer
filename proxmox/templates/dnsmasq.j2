@@ -667,95 +667,46 @@ group=dnsmasq
 
 # Include all files in /etc/dnsmasq.d except RPM backup files
 conf-dir=/etc/dnsmasq.d,.rpmnew,.rpmsave,.rpmorig
-listen-address=::1,127.0.0.1,192.168.1.125
+listen-address=::1,127.0.0.1,{{ ansible_default_ipv4.address }}
 #expand-hosts
 strict-order
-domain=keyvan.home
-#server=1.1.1.1
-#server=1.0.0.1
+domain={{ domain }}
 #resolv-file=/tmp/resolv.dnsmasq
 resolv-file=/etc/resolv.dnsmasq
 #pse boot
-dhcp-boot=pxelinux.0,infra22,192.168.1.125
+dhcp-boot=pxelinux.0,{{ actual_hostname }},{{ ansible_default_ipv4.address }}
 dhcp-authoritative
 dhcp-range=192.168.1.2,192.168.1.250,255.255.255.0,1440m
 dhcp-option=3,192.168.1.1
-# OpenMediaVault OMV/NAS/PLEX
-dhcp-host=a2:a6:cb:43:59:1f,homeNAS,192.168.1.51,infinite
-# ocp22
-dhcp-host=52:50:56:22:22:10,infra22,192.168.1.125,infinite
-dhcp-host=52:50:56:22:11:11,bootstrap22,192.168.1.120,infinite
-dhcp-host=52:50:56:22:22:11,master00,192.168.1.121,infinite
-dhcp-host=52:50:56:22:22:22,master01,192.168.1.122,infinite
-dhcp-host=52:50:56:22:22:33,master02,192.168.1.123,infinite
-dhcp-host=52:50:56:22:33:11,worker00,192.168.1.111,infinite
-dhcp-host=52:50:56:22:33:22,worker01,192.168.1.112,infinite
-dhcp-host=52:50:56:22:33:33,worker02,192.168.1.113,infinite
 
-# ocp33
-dhcp-host=52:50:56:33:22:10,infra33,192.168.1.145,infinite
-dhcp-host=52:50:56:33:11:11,bootstrap33,192.168.1.140,infinite
-dhcp-host=52:50:56:33:22:11,master000,192.168.1.141,infinite
-dhcp-host=52:50:56:33:22:22,master001,192.168.1.142,infinite
-dhcp-host=52:50:56:33:22:33,master002,192.168.1.143,infinite
 # ocp11
-dhcp-host=52:50:56:11:22:10,infra11,192.168.1.25,infinite
-dhcp-host=52:50:56:11:11:11,bootstrap11,192.168.1.20,infinite
-dhcp-host=52:50:56:11:22:11,master0,192.168.1.21,infinite
-dhcp-host=52:50:56:11:22:22,master1,192.168.1.22,infinite
-dhcp-host=52:50:56:11:22:33,master2,192.168.1.23,infinite
-dhcp-host=52:50:56:11:33:11,worker0,192.168.1.11,infinite
-dhcp-host=52:50:56:11:33:22,worker1,192.168.1.12,infinite
-dhcp-host=52:50:56:11:33:33,worker2,192.168.1.13,infinite
+dhcp-host={{ ansible_default_ipv4.macaddress }},{{ actual_hostname }},{{ ansible_default_ipv4.address }},infinite
+dhcp-host={{ macstart }}{{ mac }}{{ vms_info[0].macend }},{{ vms_info[0].name }},{{ vms_info[0].ipadd }},infinite
+dhcp-host={{ macstart }}{{ mac }}{{ vms_info[1].macend }},{{ vms_info[1].name }},{{ vms_info[1].ipadd }},infinite
+dhcp-host={{ macstart }}{{ mac }}{{ vms_info[2].macend }},{{ vms_info[2].name }},{{ vms_info[2].ipadd }},infinite
+dhcp-host={{ macstart }}{{ mac }}{{ vms_info[3].macend }},{{ vms_info[3].name }},{{ vms_info[3].ipadd }},infinite
+dhcp-host={{ macstart }}{{ mac }}{{ vms_info[4].macend }},{{ vms_info[4].name }},{{ vms_info[4].ipadd }},infinite
+dhcp-host={{ macstart }}{{ mac }}{{ vms_info[5].macend }},{{ vms_info[5].name }},{{ vms_info[5].ipadd }},infinite
+dhcp-host={{ macstart }}{{ mac }}{{ vms_info[6].macend }},{{ vms_info[6].name }},{{ vms_info[6].ipadd }},infinite
 
-dhcp-host=B2:3B:C8:37:64:47,test,192.168.1.3,infinite
-#dhcp-host=38:F9:D3:A6:8D:BE,192.168.1.10,infinite
 #bogus-priv
 stop-dns-rebind
-#dhcp-option=252,"\n"
 cache-size=1500
 
 
-#Static IP addresses
-address=/infra22.keyvan.home/192.168.1.125
-address=/api-int.ocp22.keyvan.home/192.168.1.125
-address=/api.ocp22.keyvan.home/192.168.1.125
-address=/*/apps.ocp22.keyvan.home/192.168.1.125
-address=/master00.ocp22.keyvan.home/192.168.1.121
-address=/master01.ocp22.keyvan.home/192.168.1.122
-address=/master02.ocp22.keyvan.home/192.168.1.123
-address=/worker00.ocp22.keyvan.home/192.168.1.111
-address=/worker01.ocp22.keyvan.home/192.168.1.112
-address=/worker02.ocp22.keyvan.home/192.168.1.113
-address=/master00.keyvan.home/192.168.1.121
-address=/master01.keyvan.home/192.168.1.122
-address=/master02.keyvan.home/192.168.1.123
-address=/worker00.keyvan.home/192.168.1.111
-address=/worker01.keyvan.home/192.168.1.112
-address=/worker02.keyvan.home/192.168.1.113
-# ocp33
-address=/infra33.keyvan.home/192.168.1.145
-address=/api-int.ocp33.keyvan.home/192.168.1.145
-address=/api.ocp33.keyvan.home/192.168.1.145
-address=/*/apps.ocp33.keyvan.home/192.168.1.145
-address=/master000.ocp33.keyvan.home/192.168.1.141
-address=/master001.ocp33.keyvan.home/192.168.1.142
-address=/master002.ocp33.keyvan.home/192.168.1.143
-address=/master000.keyvan.home/192.168.1.141
-address=/master001.keyvan.home/192.168.1.142
-address=/master002.keyvan.home/192.168.1.143
 
 # ocp11
-address=/infra11.keyvan.home/192.168.1.25
-address=/api-int.ocp11.keyvan.home/192.168.1.25
-address=/api.ocp11.keyvan.home/192.168.1.25
-address=/*/apps.ocp11.keyvan.home/192.168.1.25
-address=/master0.ocp11.keyvan.home/192.168.1.21
-address=/master1.ocp11.keyvan.home/192.168.1.22
-address=/master2.ocp11.keyvan.home/192.168.1.23
-address=/master0.keyvan.home/192.168.1.21
-address=/master1.keyvan.home/192.168.1.22
-address=/master2.keyvan.home/192.168.1.23
-address=/worker0.keyvan.home/192.168.1.11
-address=/worker1.keyvan.home/192.168.1.12
-address=/worker2.keyvan.home/192.168.1.13
+address=/{{ actual_hostname }}/{{ ansible_default_ipv4.address }}
+address=/api-int.{{ clusterID }}.{{ domain }}/{{ ansible_default_ipv4.address }}
+address=/api.ocp11.keyvan.home/{{ ansible_default_ipv4.address }}
+address=/*/apps.{{ clusterID }}.{{ domain }}/{{ ansible_default_ipv4.address }}
+address=/{{ vms_info[0].name }}.{{ domain }}/{{ vms_info[0].ipadd }}
+address=/{{ vms_info[1].name }}.{{ clusterID }}.{{ domain }}/{{ vms_info[1].ipadd }}
+address=/{{ vms_info[2].name }}.{{ clusterID }}.{{ domain }}/{{ vms_info[2].ipadd }}
+address=/{{ vms_info[3].name }}.{{ clusterID }}.{{ domain }}/{{ vms_info[3].ipadd }}
+address=/{{ vms_info[1].name }}.{{ domain }}/{{ vms_info[1].ipadd }}
+address=/{{ vms_info[2].name }}.{{ domain }}/{{ vms_info[2].ipadd }}
+address=/{{ vms_info[3].name }}.{{ domain }}/{{ vms_info[3].ipadd }}
+address=/{{ vms_info[4].name }}.{{ domain }}/{{ vms_info[4].ipadd }}
+address=/{{ vms_info[5].name }}.{{ domain }}/{{ vms_info[5].ipadd }}
+address=/{{ vms_info[6].name }}.{{ domain }}/{{ vms_info[6].ipadd }}

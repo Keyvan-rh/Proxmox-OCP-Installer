@@ -92,27 +92,27 @@ frontend insecurerouter
 
 backend controlplaneapi
     balance source
-    server bootstrap22 192.168.1.120:6443 check
-    server master00 192.168.1.121:6443 check
-    server master01 192.168.1.122:6443 check
-    server master02 192.168.1.123:6443 check
+    server {{ vms_info[0].name }} {{ vms_info[0].ipadd }}:6443 check
+    server {{ vms_info[1].name }} {{ vms_info[1].ipadd }}:6443 check
+    server {{ vms_info[2].name }} {{ vms_info[2].ipadd }}:6443 check
+    server {{ vms_info[3].name }} {{ vms_info[3].ipadd }}:6443 check
 
 
 backend controlplanemc
     balance source
-    server bootstrap22 192.168.1.120:22623 check
-    server master00 192.168.1.121:22623 check
-    server master01 192.168.1.122:22623 check
-    server master02 192.168.1.123:22623 check
+    server {{ vms_info[0].name }} {{ vms_info[0].ipadd }}:22623 check
+    server {{ vms_info[1].name }} {{ vms_info[1].ipadd }}:22623 check
+    server {{ vms_info[2].name }} {{ vms_info[2].ipadd }}:22623 check
+    server {{ vms_info[3].name }} {{ vms_info[3].ipadd }}:22623 check
 
 backend secure
     balance source
-    server worker00 192.168.1.111:443 check
-    server worker01 192.168.1.112:443 check
-    server worker02 192.168.1.113:443 check
+    server {{ vms_info[4].name }} {{ vms_info[4].ipadd }}:443 check
+    server {{ vms_info[5].name }} {{ vms_info[5].ipadd }}:443 check
+    server {{ vms_info[6].name }} {{ vms_info[6].ipadd }}:443 check
 
 backend insecure
     balance source
-    server worker00 192.168.1.111:80 check
-    server worker01 192.168.1.112:80 check
-    server worker02 192.168.1.113:80 check
+    server {{ vms_info[4].name }} {{ vms_info[4].ipadd }}:80 check
+    server {{ vms_info[5].name }} {{ vms_info[5].ipadd }}:80 check
+    server {{ vms_info[6].name }} {{ vms_info[6].ipadd }}:80 check
