@@ -2,7 +2,7 @@
   hosts: pve
   become: true
   vars_files:
-    - 11-vars.yml
+    - vars.yml
   tasks:
     - name: Stop VMs for OCP
       command: qm stop "{{ vimidStart }}{{ item.vimid }}"
