@@ -2,7 +2,7 @@
   hosts: localhost
   become: true
   vars_files:
-    - 11-vars.yml
+    - vars.yml
   environment:
     KUBECONFIG:     
   tasks:
@@ -158,7 +158,7 @@
     - name: Create ignition files
       shell:
         chdir: ../../OCPHelper-NoDNS
-        cmd: ./1111-prep-ignitions.sh
+        cmd: ./11-prep-ignitions.sh
       tags:
          - install_ocp
 
@@ -167,7 +167,7 @@
   hosts: pve
   become: true
   vars_files:
-    - 11-vars.yml 
+    - vars.yml 
   tasks:
     - name: Create new VMs for OCP cluster 
       command: qm create "{{ vimidStart }}{{ item.vimid }}" --net0 virtio="{{ macstart }}{{ mac }}{{ item.macend }}",bridge=vmbr0 --name "{{ item.name }}"  --scsihw virtio-scsi-pci --scsi0 VMs:150,format=qcow2 --cores "{{ item.cpu }}" --memory "{{ item.mem }}"
@@ -212,23 +212,15 @@
   hosts: localhost
   become: true
   tasks:
-    - name: Copy OCP Auth to ocp4 folder
-      copy:
-        src: ../ocp11/auth
-        dest: ../ocp4
-        force: yes
-        mode: "u=rx,g=rwx,o=rwx"
-      tags:
-         - install_ocp
     - name: Copy OCP Auth to for generic access
       copy:
-        src: ../ocp11/auth
-        dest: ../../ocp11
+        src: ../ocp4/auth/kubeconfig
+        dest: ~/.kube/config
         force: yes
         mode: "u=rx,g=rwx,o=rwx"
       tags:
          - install_ocp
-    - name: Create ignition files
+    - name: Approve certs
       shell:
         chdir: /root/OCPHelper-NoDNS
         cmd: ./31-approve-certs.sh
