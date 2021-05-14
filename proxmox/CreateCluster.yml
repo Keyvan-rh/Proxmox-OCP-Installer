@@ -148,16 +148,45 @@
         cmd: ./00-get-ocp-ga.sh
       tags:
          - get_ocp
+    - name: cleanup 
+      file:
+        path: "{{ item }}"
+        state: absent
+      with_items:
+        - "../ocp4"
+        - "/var/www/html/ignition"
+      tags:
+         - install_ocp
+         - test 
+    - name: Prep
+      file:
+        path: "{{ item }}"
+        state: directory
+      with_items:
+        - "../ocp4"
+        - "/var/www/html/ignition"
+      tags:
+         - install_ocp
+         - test
+    - name: Copy install-config 
+      template:
+        src: ./templates/install-config.ocp
+        dest: ../ocp4/install-config.yaml
+        force: yes
+        mode: "u=rw,g=r,o=r"
+      tags:
+         - install_ocp
+         - test
 
     - name: get latest OCP GA RHCOS images
       shell:
-        chdir: ../../OCPHelper-NoDNS
+        chdir: ../
         cmd: ./02-get-ocp-installer.sh
       tags:
          - get_ocp
     - name: Create ignition files
       shell:
-        chdir: ../../OCPHelper-NoDNS
+        chdir: ../
         cmd: ./11-prep-ignitions.sh
       tags:
          - install_ocp

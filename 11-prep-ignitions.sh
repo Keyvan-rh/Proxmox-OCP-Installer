@@ -1,8 +1,3 @@
-rm -rf ocp4
-mkdir ocp4
-mkdir /var/www/html/ignition
-rm -f /var/www/html/ignition/*
-cp ./backup/install-config.ocp ./ocp4/install-config.yaml
 cd ./ocp4
 eval "$(ssh-agent -s)"
 ssh-add ~/.ssh/id_rsa

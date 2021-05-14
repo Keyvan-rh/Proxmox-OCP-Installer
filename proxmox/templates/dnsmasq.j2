@@ -679,7 +679,7 @@ dhcp-authoritative
 dhcp-range=192.168.1.2,192.168.1.250,255.255.255.0,1440m
 dhcp-option=3,192.168.1.1
 
-# ocp11
+# ocp
 dhcp-host={{ ansible_default_ipv4.macaddress }},{{ actual_hostname }},{{ ansible_default_ipv4.address }},infinite
 dhcp-host={{ macstart }}{{ mac }}{{ vms_info[0].macend }},{{ vms_info[0].name }},{{ vms_info[0].ipadd }},infinite
 dhcp-host={{ macstart }}{{ mac }}{{ vms_info[1].macend }},{{ vms_info[1].name }},{{ vms_info[1].ipadd }},infinite
@@ -695,10 +695,10 @@ cache-size=1500
 
 
 
-# ocp11
+# ocp
 address=/{{ actual_hostname }}/{{ ansible_default_ipv4.address }}
 address=/api-int.{{ clusterID }}.{{ domain }}/{{ ansible_default_ipv4.address }}
-address=/api.ocp11.keyvan.home/{{ ansible_default_ipv4.address }}
+address=/api.{{ clusterID }}.keyvan.home/{{ ansible_default_ipv4.address }}
 address=/*/apps.{{ clusterID }}.{{ domain }}/{{ ansible_default_ipv4.address }}
 address=/{{ vms_info[0].name }}.{{ domain }}/{{ vms_info[0].ipadd }}
 address=/{{ vms_info[1].name }}.{{ clusterID }}.{{ domain }}/{{ vms_info[1].ipadd }}

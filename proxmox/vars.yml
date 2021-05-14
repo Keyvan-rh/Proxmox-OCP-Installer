@@ -1,8 +1,8 @@
 proxmox:
-  ip: < IP address of your proxmox server >
+  ip: 192.168.1.74
   name: 'pve'
 clusterID: ocp4
-domain: <your domain like: sample.lab>
+domain: keyvan.home
 macstart: '52:50:56:'
 mac: '11'
 vimidStart: '20'
