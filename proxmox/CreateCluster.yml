@@ -251,7 +251,7 @@
          - install_ocp
     - name: Approve certs
       shell:
-        chdir: /root/OCPHelper-NoDNS
+        chdir: ../
         cmd: ./31-approve-certs.sh
       loop: [1,2,3,4,5,6,7,8,9]
       loop_control:
