@@ -1,0 +1,61 @@
+ifdef::env-github[]
+:tip-caption: :bulb:
+:note-caption: :information_source:
+:important-caption: :heavy_exclamation_mark:
+:caution-caption: :fire:
+:warning-caption: :warning:
+endif::[]
+
+= **Openshift on Proxmox**
+====================
+:imagesdir: img
+
+== Prerequisites
+
+Before you start, Download and install Proxmox from : https://www.proxmox.com/en/downloads/category/iso-images-pve
+
+image::Proxmox.png[500,500]
+
+Installation process can be found on youtube : https://www.youtube.com/watch?v=7OVaWaqO2aU
+
+The installation is easy just buron the downloaded iso on a flash drive and use it to boot your server from USB and the follow the prompt.
+
+=== **Create your infra VM**
+
+We need to create a VM that will contain external Dependencys for OCP installation. This box would act as: 
+
+**Haproxy** : External load balancer for OCP masters
+
+**Apache Webserver** : To host RHCOS images for OCP installation 
+
+**PXE** : For PXE booting our OCP nodes
+
+image::infra.png[100]
+
+You can install CentOS stream 8 or RHEL 8 as the OS.
+
+download Centos from :
+https://www.centos.org/download/
+
+image::CreateVM1.png[1000,1000]
+
+image::CreateVM2.png[500,500]
+
+image::CreateVM3.png[500,500]
+
+image::CreateVM4.png[500,500]
+
+image::CreateVM5.png[500,500]
+
+image::CreateVM6.png[500,500]
+
+
+=== **Installing ansible and git **
+
+To clone this repo and execute the script you need to install these two packages :
+
+```
+# yum -y install ansible git
+```
+
+
