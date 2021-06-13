@@ -108,6 +108,13 @@
         state: restarted
       tags:
          - build_infra
+    - name: Ansible remove file glob
+      file:
+        path: /var/lib/tftpboot/pxelinux.cfg/{{ ( '01-' + macstart + mac + item.macend ) | replace(':','-') }}
+        state: absent
+      with_items: "{{ vms_info }}"
+      tags:
+         - build_infra 
     - name: Setup Auto pxe boot
       template:
         src: ./templates/{{ item.ign }}
@@ -116,7 +123,6 @@
         mode: "u=rx,g=rx,o=rx"
       loop: "{{ vms_info }}"
       tags:
-         - install_ocp
          - build_infra
     - name: restart tftp service
       service:
@@ -142,32 +148,37 @@
       run_once: true
       tags:
          - build_infra
-    - name: get latest OCP GA RHCOS images
-      shell:
-        chdir: ../
-        cmd: ./00-get-ocp-ga.sh
-      tags:
-         - get_ocp
-    - name: cleanup 
+    - name: Cleanup files 
       file:
         path: "{{ item }}"
         state: absent
       with_items:
         - "../ocp4"
         - "/var/www/html/ignition"
+        - "/var/www/html/install"
+        - "../openshift-*"
+        - "../*.img"
+        - "../rhcos-live-*"
+        - "../oc"
+        - "../kubectl"
       tags:
-         - install_ocp
-         - test 
-    - name: Prep
+         - prep_install
+    - name: Prep directories
       file:
         path: "{{ item }}"
         state: directory
       with_items:
         - "../ocp4"
         - "/var/www/html/ignition"
+        - "/var/www/html/install"
       tags:
-         - install_ocp
-         - test
+         - prep_install
+    - name: get latest OCP GA RHCOS images
+      shell:
+        chdir: ../
+        cmd: ./00-get-ocp-ga.sh
+      tags:
+         - prep_install
     - name: Copy install-config 
       template:
         src: ./templates/install-config.ocp
@@ -175,21 +186,20 @@
         force: yes
         mode: "u=rw,g=r,o=r"
       tags:
-         - install_ocp
-         - test
+         - prep_install
 
-    - name: get latest OCP GA RHCOS images
+    - name: get latest OCP installer plus cli
       shell:
         chdir: ../
         cmd: ./02-get-ocp-installer.sh
       tags:
-         - get_ocp
+         - prep_install
     - name: Create ignition files
       shell:
         chdir: ../
         cmd: ./11-prep-ignitions.sh
       tags:
-         - install_ocp
+         - prep_install
 
   
 - name: Create OCP VMs and start them in sequence
@@ -202,16 +212,16 @@
       command: qm create "{{ vimidStart }}{{ item.vimid }}" --net0 virtio="{{ macstart }}{{ mac }}{{ item.macend }}",bridge=vmbr0 --name "{{ item.name }}"  --scsihw virtio-scsi-pci --scsi0 VMs:150,format=qcow2 --cores "{{ item.cpu }}" --memory "{{ item.mem }}"
       loop: "{{ vms_info }}"
       tags:
-         - install_ocp
+         - create_vms
     - name: Start Bootstrap VM 
       command: qm start "{{ vimidStart }}{{ vms_info[0].vimid }}" 
       tags:
-         - install_ocp
-    - name: Pause for 7 minutes to build app cache
+         - create_vms
+    - name: Pause for 10 minutes to build app cache
       pause:
         minutes: 10
       tags:
-         - install_ocp
+         - create_vms
     - name: Start Masters VMs
       command: qm start "{{ vimidStart }}{{ item.vimid }}" 
       loop:
@@ -219,24 +229,24 @@
         - "{{ vms_info[2] }}"
         - "{{ vms_info[3] }}"
       tags:
-         - install_ocp
-    - name: Pause for 7 minutes to build app cache
+         - create_vms
+    - name: Pause for 15 minutes to build app cache
       pause:
         minutes: 15
       tags:
-         - install_ocp
+         - create_vms
     - name: Start workers VMs
       command: qm start "{{ vimidStart }}{{ item.vimid }}" 
       loop:
         - "{{ vms_info[4] }}"
         - "{{ vms_info[5] }}"
       tags:
-         - install_ocp
+         - create_vms
     - name: Pause for 7 minutes to build app cache
       pause:
         minutes: 5
       tags:
-         - install_ocp
+         - create_vms
 - name: Copy auth and approve certs
   hosts: localhost
   become: true
@@ -248,7 +258,7 @@
         force: yes
         mode: "u=rx,g=rwx,o=rwx"
       tags:
-         - install_ocp
+         - create_vms
     - name: Approve certs
       shell:
         chdir: ../
@@ -257,4 +267,4 @@
       loop_control:
         pause: 120
       tags:
-         - install_ocp
+         - create_vms
