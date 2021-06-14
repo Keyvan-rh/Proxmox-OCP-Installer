@@ -18,9 +18,9 @@ image::Proxmox.png[500,500]
 
 Installation process can be found on youtube : https://www.youtube.com/watch?v=7OVaWaqO2aU
 
-The installation is easy just buron the downloaded iso on a flash drive and use it to boot your server from USB and the follow the prompt.
+The installation is easy, Flash the downloaded iso on a thumb drive and use it to boot your server from USB and the follow the prompt. you need to setup your storage after installation of Proxmox
 
-=== **Create your infra VM**
+== **Create your infra VM**
 
 We need to create a VM that will contain external Dependencys for OCP installation. This box would act as: 
 
@@ -55,7 +55,68 @@ image::CreateVM6.png[500,500]
 To clone this repo and execute the script you need to install these two packages :
 
 ```
-# yum -y install ansible git
+   yum -y install ansible git
 ```
 
+== **Prep Infra/Helper Box**
 
+  Clone this repo to the VM you just created above
+```
+  git clone https://github.com/Keyvan-rh/Proxmox-OCP-Installer.git
+  cd Proxmox-OCP-Installer
+  cd proxmox
+```
+  In this folder you multiple yaml files for:
+     CreateCluster.yml: for creating your OCP cluster 
+     DleeteCluster.yml: for removing and cleaning OCP cluster from your Proxmox
+     nfs-setup.yml: if you wish to use nfs as your storage provider of OCP ( you need to have a nfs server ready to use this).
+     vars.yml: variables to be used for your OCP intstallation
+
+=== **Customization and Preparation**
+
+   There are couple places that you need to add your local and personal information before you can run the installer.
+
+=== **proxmox/vars.yml**
+
+   Before we start installing OCP cluster we need to update this file. You need the folowing information: 
+       IP address of your proxmox server, the name of your Proxmox server (default is pve), and the local domain you need to use for OCP installation.if you would like you can change the clusterID as well this is usefull if you are planning to have multiple OCP cluster installed. 
+
+```
+      proxmox:
+         ip: <IP address of your proxmox server>
+         name: 'pve'
+      clusterID: ocp4
+      domain: < you domain : example.lab >
+```
+   Script will use this data to build your VMs and setup your infra/helper machine. pay attention to the Mac address and the IP addresses assiged to each machine if these are used in your end you can modified the values try to update the macstart and leave the rest as this would help you identify machines easier.
+
+=== **templates/install-config.yml**
+
+   In this file you need to add your continer registery Pull secret 
+
+```
+   pullSecret: < Add your Pull secret from cloud.redhat.com > 
+   sshkey: < Add your ssh key >
+
+```
+
+image::PullSecret1.png[500,500]
+image::PullSecret2.png[500,500]
+image::PullSecret3.png[500,500]
+image::PullSecret4.png[500,500]
+image::PullSecret5.png[500,500]
+
+   Now you need to create you own ssh key and add the public key to this file.
+```
+   ssh-keygen -t rsa -b 4096 -N ''
+```
+
+=== **Setup Ansible user **
+
+=== **Setup Infra/Helper box**
+   Now is time to install pakages, open ports, setup PXE boot and ...
+   execute the following command in Proxmox-OCP-Installer/proxmox
+
+```
+   ansible-playbook CreateCluster.yml --tags build_infra 
+```
