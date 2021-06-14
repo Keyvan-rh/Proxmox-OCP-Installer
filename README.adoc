@@ -30,18 +30,25 @@ We need to create a VM that will contain external Dependencys for OCP installati
 
 **PXE** : For PXE booting our OCP nodes
 
-image::infra.png[100]
+image::infra.png[100,100]
 
 You can install CentOS stream 8 or RHEL 8 as the OS.
 
 download Centos from :
 https://www.centos.org/download/
 
-image::CreateVM1.png[1000,1000]
+Upload the downloaded iso to a storage on proxmox: 
+
+image::CreateVM0.png[500,500]
+
+Click on "Create VM" at the top right of proxmox UI and follow the following steps.
+
 
 image::CreateVM2.png[500,500]
 
 image::CreateVM3.png[500,500]
+
+Select the Storage you want to store your VM storage and set the value to 30 GiB.
 
 image::CreateVM4.png[500,500]
 
@@ -120,3 +127,25 @@ image::PullSecret5.png[500,500]
 ```
    ansible-playbook CreateCluster.yml --tags build_infra 
 ```
+
+=== ** Validate the infra/Helper box
+   lets validate that all the parts are installed and startup: Haproxy: Using oyur browser go to the following link
+
+```
+   http://<ifra IP address>:9000/
+```
+== ** Install Openshift 4.x **
+
+   First we need to get the correct version of openshift installer and the RHCOS, to do that we need to execute the following command: 
+```
+   ansible-playbook CreateCluster.yml --tags prep_install
+```
+   
+   Now that we have the everything we need we can install the cluster:
+```
+   ansible-playbook CreateCluster.yml --tags create_vms
+```  
+
+   This will take 40 to 50 minutes so go get to coffee and do other work that you push back till we setup your OCP cluster.
+
+
