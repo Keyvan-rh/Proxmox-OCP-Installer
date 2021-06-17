@@ -31,20 +31,20 @@
         mode: "u=rw,g=r,o=r"
       tags:
          - build_infra
-    - name: copy httpd.conf to use port 8080
-      template:
-        src: ./templates/httpd.conf
-        dest: /etc/httpd/conf/httpd.conf
-        force: yes
-        mode: "u=rw,g=r,o=r"
-      tags:
-         - build_infra
     - name: Install needed packages
       package:
         name: 
           - "{{ item }}"
         state: present
       loop: "{{ packages }}"
+      tags:
+         - build_infra
+    - name: copy httpd.conf to use port 8080
+      template:
+        src: ./templates/httpd.conf
+        dest: /etc/httpd/conf/httpd.conf
+        force: yes
+        mode: "u=rw,g=r,o=r"
       tags:
          - build_infra
     - name: Create TFTP config
@@ -168,6 +168,7 @@
         path: "{{ item }}"
         state: directory
       with_items:
+        - "/root/.kube"
         - "../ocp4"
         - "/var/www/html/ignition"
         - "/var/www/html/install"

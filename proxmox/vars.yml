@@ -23,6 +23,7 @@ packages:
    - syslinux
    - bind-utils
    - tar
+   - wget
 ports:
    - 67/udp
    - 53/tcp
