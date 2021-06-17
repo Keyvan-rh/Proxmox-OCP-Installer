@@ -161,6 +161,7 @@
         - "../rhcos-live-*"
         - "../oc"
         - "../kubectl"
+        - "/root/.kube"
       tags:
          - prep_install
     - name: Prep directories
@@ -213,16 +214,16 @@
       command: qm create "{{ vimidStart }}{{ item.vimid }}" --net0 virtio="{{ macstart }}{{ mac }}{{ item.macend }}",bridge=vmbr0 --name "{{ item.name }}"  --scsihw virtio-scsi-pci --scsi0 VMs:150,format=qcow2 --cores "{{ item.cpu }}" --memory "{{ item.mem }}"
       loop: "{{ vms_info }}"
       tags:
-         - create_vms
+         - install_ocp
     - name: Start Bootstrap VM 
       command: qm start "{{ vimidStart }}{{ vms_info[0].vimid }}" 
       tags:
-         - create_vms
+         - install_ocp
     - name: Pause for 10 minutes to build app cache
       pause:
         minutes: 10
       tags:
-         - create_vms
+         - install_ocp
     - name: Start Masters VMs
       command: qm start "{{ vimidStart }}{{ item.vimid }}" 
       loop:
@@ -230,24 +231,24 @@
         - "{{ vms_info[2] }}"
         - "{{ vms_info[3] }}"
       tags:
-         - create_vms
+         - install_ocp
     - name: Pause for 15 minutes to build app cache
       pause:
         minutes: 15
       tags:
-         - create_vms
+         - install_ocp
     - name: Start workers VMs
       command: qm start "{{ vimidStart }}{{ item.vimid }}" 
       loop:
         - "{{ vms_info[4] }}"
         - "{{ vms_info[5] }}"
       tags:
-         - create_vms
+         - install_ocp
     - name: Pause for 7 minutes to build app cache
       pause:
         minutes: 5
       tags:
-         - create_vms
+         - install_ocp
 - name: Copy auth and approve certs
   hosts: localhost
   become: true
@@ -259,7 +260,7 @@
         force: yes
         mode: "u=rx,g=rwx,o=rwx"
       tags:
-         - create_vms
+         - install_ocp
     - name: Approve certs
       shell:
         chdir: ../
@@ -268,4 +269,8 @@
       loop_control:
         pause: 120
       tags:
-         - create_vms
+         - install_ocp
+    - name: wait for OCP install to be comlete
+      command: openshift-install wait-for install-complete
+      tags:
+         - install_ocp 

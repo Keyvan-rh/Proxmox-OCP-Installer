@@ -61,7 +61,12 @@ image::CreateVM6.png[500,500]
 
 To clone this repo and execute the script you need to install these two packages :
 
+for centos follow these steps: 
+
 ```
+   sudo dnf makecache
+   sudo dnf install epel-release
+   sudo dnf makecache
    yum -y install ansible git
 ```
 
@@ -73,10 +78,14 @@ To clone this repo and execute the script you need to install these two packages
   cd Proxmox-OCP-Installer
   cd proxmox
 ```
-  In this folder you multiple yaml files for:
+  In this folder there are multiple yaml files for:
+
      CreateCluster.yml: for creating your OCP cluster 
+
      DleeteCluster.yml: for removing and cleaning OCP cluster from your Proxmox
+
      nfs-setup.yml: if you wish to use nfs as your storage provider of OCP ( you need to have a nfs server ready to use this).
+
      vars.yml: variables to be used for your OCP intstallation
 
 === **Customization and Preparation**
@@ -114,10 +123,11 @@ image::PullSecret4.png[500,500]
 image::PullSecret5.png[500,500]
 
    Now you need to create you own ssh key and add the public key to this file.
+
 ```
    ssh-keygen -t rsa -b 4096 -N ''
 ```
-
+   Add your pub key to the authorized_keys on the proxmox box so the user that would run the ansible playbook can ssh to box with no password.
 === **Setup Ansible user **
 
 === **Setup Infra/Helper box**
@@ -134,18 +144,47 @@ image::PullSecret5.png[500,500]
 ```
    http://<ifra IP address>:9000/
 ```
+image::lb_validate.png[500,500]
+
+```
+   http://<ifra IP address>:8080
+```
+image::apache.png[500,500]
+
+
+
 == ** Install Openshift 4.x **
 
    First we need to get the correct version of openshift installer and the RHCOS, to do that we need to execute the following command: 
 ```
    ansible-playbook CreateCluster.yml --tags prep_install
 ```
-   
+=== ** Validate preperation step  **
+
+```
+   http://<ifra IP address>:8080/install
+```
+image::rhcos.png[500,500]
+
+```
+   http://<ifra IP address>:8080/ignition
+```
+image::ignition.png[500,500]
+
+Check if all auto pxe config files has been generated:
+
+```
+ls /var/lib/tftpboot/pxelinux.cfg
+```
+image::pxe.png[500,500]
+
+=== ** installing OCP CLuster  **
+
    Now that we have the everything we need we can install the cluster:
 ```
-   ansible-playbook CreateCluster.yml --tags create_vms
+   ansible-playbook CreateCluster.yml --tags install_ocp
 ```  
 
    This will take 40 to 50 minutes so go get to coffee and do other work that you push back till we setup your OCP cluster.
-
+=== ** Post Installation steps **
 
