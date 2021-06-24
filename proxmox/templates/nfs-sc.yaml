@@ -2,6 +2,6 @@ apiVersion: storage.k8s.io/v1
 kind: StorageClass
 metadata:
   name: nfs # when creating the PVC, it should mention this name
-provisioner: nfs-test # give any name of your choice
+provisioner: nfs-provisioner # give any name of your choice
 parameters:
   archiveOnDelete: "false"

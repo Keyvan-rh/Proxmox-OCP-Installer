@@ -237,6 +237,10 @@
         minutes: 15
       tags:
          - install_ocp
+    - name: Stop BootStarp
+      command: qm stop "{{ vimidStart }}{{ vms_info[0].vimid }}"
+      tags:
+         - install_ocp
     - name: Start workers VMs
       command: qm start "{{ vimidStart }}{{ item.vimid }}" 
       loop:
@@ -270,7 +274,19 @@
         pause: 120
       tags:
          - install_ocp
-    - name: wait for OCP install to be comlete
-      command: openshift-install wait-for install-complete
+    - name: wait for complition of installer 
+      shell:
+        chdir: ../ocp4
+        cmd: openshift-install wait-for install-complete 
       tags:
-         - install_ocp 
+         - install_ocp
+    - name: OCP admin password
+      shell:
+        chdir: ../ocp4/auth
+        cmd: cat kubeadmin-password
+      register: kubeadmin
+      tags:
+         - install_ocp
+    - debug: var=kubeadmin.stdout_lines
+      tags:
+         - install_ocp

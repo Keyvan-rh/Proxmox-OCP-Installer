@@ -23,13 +23,13 @@ spec:
               mountPath: /persistentvolumes
           env:
             - name: PROVISIONER_NAME
-              value: nfs-test
+              value: nfs-provisioner
             - name: NFS_SERVER
-              value: 192.168.1.51
+              value: {{ nfs_provisioner[0].ip }}
             - name: NFS_PATH
-              value: /export
+              value: {{ nfs_provisioner[0].path }}
       volumes:
         - name: nfs-provisioner-v
           nfs:
-            server: 192.168.1.51
-            path: /export
+            server: {{ nfs_provisioner[0].ip }}
+            path: {{ nfs_provisioner[0].path }}
