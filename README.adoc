@@ -12,7 +12,7 @@ endif::[]
 
 :toc:
 
-[blue]== Prerequisites
+== [blue]Prerequisites
 
 Before you start, Download and install Proxmox from : https://www.proxmox.com/en/downloads/category/iso-images-pve
 
