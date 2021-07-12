@@ -1,4 +1,5 @@
 ifdef::env-github[]
+:toc: macro
 :tip-caption: :bulb:
 :note-caption: :information_source:
 :important-caption: :heavy_exclamation_mark:
@@ -6,15 +7,13 @@ ifdef::env-github[]
 :warning-caption: :warning:
 endif::[]
 
-[blue]= **Openshift on Proxmox**
+= **Openshift on Proxmox**
 ====================
 :imagesdir: img
 
-:toc:
 
-== [blue] Prerequisites
+== Prerequisites
 
-[red]#this is printed in red#
 
 Before you start, Download and install Proxmox from : https://www.proxmox.com/en/downloads/category/iso-images-pve
 
@@ -24,7 +23,7 @@ Installation process can be found on youtube : https://www.youtube.com/watch?v=7
 
 The installation is easy, Flash the downloaded iso on a thumb drive and use it to boot your server from USB and the follow the prompt. you need to setup your storage after installation of Proxmox
 
-[blue]== **Create your infra VM**
+== **Create your infra VM**
 
 We need to create a VM that will contain external Dependencys for OCP installation. This box would act as: 
 
