@@ -6,13 +6,13 @@ ifdef::env-github[]
 :warning-caption: :warning:
 endif::[]
 
-= **Openshift on Proxmox**
+[blue]= **Openshift on Proxmox**
 ====================
 :imagesdir: img
 
 :toc:
 
-== Prerequisites
+[blue]== Prerequisites
 
 Before you start, Download and install Proxmox from : https://www.proxmox.com/en/downloads/category/iso-images-pve
 
@@ -22,7 +22,7 @@ Installation process can be found on youtube : https://www.youtube.com/watch?v=7
 
 The installation is easy, Flash the downloaded iso on a thumb drive and use it to boot your server from USB and the follow the prompt. you need to setup your storage after installation of Proxmox
 
-== **Create your infra VM**
+[blue]== **Create your infra VM**
 
 We need to create a VM that will contain external Dependencys for OCP installation. This box would act as: 
 
@@ -59,7 +59,7 @@ image::CreateVM5.png[500,500]
 image::CreateVM6.png[500,500]
 
 
-=== **Installing ansible and git **
+=== **Installing ansible and git**
 
 To clone this repo and execute the script you need to install these two packages :
 
@@ -72,7 +72,7 @@ for centos follow these steps:
    yum -y install ansible git
 ```
 
-== **Prep Infra/Helper Box**
+[blue]== **Prep Infra/Helper Box**
 
 Clone this repo into the VM you just created above
 ```
