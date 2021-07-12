@@ -25,11 +25,11 @@ spec:
             - name: PROVISIONER_NAME
               value: nfs-provisioner
             - name: NFS_SERVER
-              value: {{ nfs_provisioner[0].ip }}
+              value: 192.168.1.51
             - name: NFS_PATH
-              value: {{ nfs_provisioner[0].path }}
+              value: '/export'
       volumes:
         - name: nfs-provisioner-v
           nfs:
-            server: {{ nfs_provisioner[0].ip }}
-            path: {{ nfs_provisioner[0].path }}
+            server: 192.168.1.51
+            path: '/export'

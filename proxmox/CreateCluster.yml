@@ -175,12 +175,18 @@
         - "/var/www/html/install"
       tags:
          - prep_install
-    - name: get latest OCP GA RHCOS images
-      shell:
-        chdir: ../
-        cmd: ./00-get-ocp-ga.sh
+    - name: Ansible remove file glob
+      file:
+        path: /var/www/html/install/{{ item }}
+        state: absent
+      with_items: "{{ rhcos }}"
       tags:
          - prep_install
+    - name: download sources
+      get_url: url={{ rhcos_download_url }}/{{ item }} dest=/var/www/html/install/.
+      with_items: "{{ rhcos }}"
+      tags:
+        - prep_install
     - name: Copy install-config 
       template:
         src: ./templates/install-config.ocp
@@ -189,11 +195,16 @@
         mode: "u=rw,g=r,o=r"
       tags:
          - prep_install
-
-    - name: get latest OCP installer plus cli
-      shell:
-        chdir: ../
-        cmd: ./02-get-ocp-installer.sh
+    - name: download OCP installer
+      get_url: url={{ client_download_url }}/{{ item }} dest=./.
+      with_items: "{{ ocp_client }}"
+      tags:
+        - prep_install
+    - name: untar and copy client apps
+      ansible.builtin.unarchive:
+        src: "{{ item }}"
+        dest: /usr/local/bin/.
+      with_items: "{{ ocp_client }}"
       tags:
          - prep_install
     - name: Create ignition files
@@ -219,9 +230,20 @@
       command: qm start "{{ vimidStart }}{{ vms_info[0].vimid }}" 
       tags:
          - install_ocp
-    - name: Pause for 10 minutes to build app cache
-      pause:
-        minutes: 10
+    - name: wait till bootstarp is ready
+      shell: curl http://{{ ext_haproxy_ip }}:9000 |grep controlplanemc/{{ vms_info[0].name }}
+      register: result
+      until: result.stdout.find("active_up") != -1 
+      retries: 60
+      delay: 60
+      tags:
+         - install_ocp
+    - name: wait till bootstarp is ready
+      shell: curl http://{{ ext_haproxy_ip }}:9000 |grep controlplaneapi/{{ vms_info[0].name }}
+      register: result
+      until: result.stdout.find("active_up") != -1
+      retries: 60
+      delay: 60
       tags:
          - install_ocp
     - name: Start Masters VMs
@@ -232,9 +254,36 @@
         - "{{ vms_info[3] }}"
       tags:
          - install_ocp
-    - name: Pause for 15 minutes to build app cache
-      pause:
-        minutes: 15
+    - name: wait till master3 amc is ready
+      shell: curl http://{{ ext_haproxy_ip }}:9000 |grep controlplanemc/{{ vms_info[3].name }}
+      register: result
+      until: result.stdout.find("active_up") != -1
+      retries: 100
+      delay: 60
+      tags:
+         - install_ocp
+    - name: wait till master3 api is ready
+      shell: curl http://{{ ext_haproxy_ip }}:9000 |grep controlplaneapi/{{ vms_info[3].name }}
+      register: result
+      until: result.stdout.find("active_up") != -1
+      retries: 100
+      delay: 60
+      tags:
+         - install_ocp
+    - name: wait till master1 api is ready
+      shell: curl http://{{ ext_haproxy_ip }}:9000 |grep controlplaneapi/{{ vms_info[1].name }}
+      register: result
+      until: result.stdout.find("active_up") != -1
+      retries: 100
+      delay: 60
+      tags:
+         - install_ocp
+    - name: wait till master1 emc is ready
+      shell: curl http://{{ ext_haproxy_ip }}:9000 |grep controlplanemc/{{ vms_info[1].name }}
+      register: result
+      until: result.stdout.find("active_up") != -1
+      retries: 100
+      delay: 60
       tags:
          - install_ocp
     - name: Stop BootStarp
@@ -288,5 +337,20 @@
       tags:
          - install_ocp
     - debug: var=kubeadmin.stdout_lines
+      tags:
+         - install_ocp
+    - name: Setup NFS storage
+      ansible.builtin.shell:
+        cmd: "{{ item }}"
+      with_items:
+        - "oc create -f templates/nfs-rbac.yaml -n default"
+        - "oc create -f templates/nfs-sc.yaml -n default"
+        - "oc create -f templates/OMV-nfs-provisioner-deployment.yaml -n default"
+        - "oc patch storageclass nfs -p '{\"metadata\": {\"annotations\": {\"storageclass.kubernetes.io/is-default-class\": \"true\"}}}'"
+        - "oc patch configs.imageregistry.operator.openshift.io/cluster --type merge -p '{\"spec\":{\"defaultRoute\":true}}'"
+        - "oc patch configs.imageregistry.operator.openshift.io cluster --type merge --patch '{\"spec\":{\"managementState\":\"Managed\"}}'"
+        - "oc patch configs.imageregistry.operator.openshift.io cluster --type merge --patch '{\"spec\":{\"storage\":{\"emptyDir\":{}}}}'"
+      environment:
+        KUBECONFIG: '../ocp4/auth/kubeconfig'
       tags:
          - install_ocp

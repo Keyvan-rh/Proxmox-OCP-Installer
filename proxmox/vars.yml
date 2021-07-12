@@ -2,6 +2,7 @@ proxmox:
   ip: 192.168.1.74
   name: 'pve'
 clusterID: ocp4
+ext_haproxy_ip: 192.168.1.241
 domain: keyvan.home
 macstart: '52:50:56:'
 mac: '11'
@@ -14,6 +15,18 @@ vms_info:
    - { vimid: '4', name: 'worker0', macend: ':33:11', cpu: '8', mem: '32768', ign: 'pxe-worker.j2', ipadd: '192.168.1.111' }
    - { vimid: '5', name: 'worker1', macend: ':33:22', cpu: '8', mem: '32768', ign: 'pxe-worker.j2', ipadd: '192.168.1.112' }
    - { vimid: '6', name: 'worker2', macend: ':33:33', cpu: '8', mem: '32768', ign: 'pxe-worker.j2', ipadd: '192.168.1.113' }
+
+rhcos_download_url: https://mirror.openshift.com/pub/openshift-v4/x86_64/dependencies/rhcos/4.7/latest/
+# rhcos_download_url: https://mirror.openshift.com/pub/openshift-v4/x86_64/dependencies/rhcos/pre-release/latest
+rhcos:
+   - rhcos-live-rootfs.x86_64.img
+   - rhcos-live-kernel-x86_64
+   - rhcos-live-initramfs.x86_64.img
+client_download_url: https://mirror.openshift.com/pub/openshift-v4/x86_64/clients/ocp/latest-4.7/
+# client_download_url: https://mirror.openshift.com/pub/openshift-v4/x86_64/clients/ocp/candidate-4.8
+ocp_client:
+   - openshift-install-linux.tar.gz
+   - openshift-client-linux.tar.gz
 packages:
    - httpd
    - dnsmasq
