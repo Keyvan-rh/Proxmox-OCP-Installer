@@ -9,17 +9,15 @@ ifdef::env-github[]
 :warning-caption: :warning:
 endif::[]
 
+
+
 = **Openshift on Proxmox**
-====================
+
 :imagesdir: img
 
 toc::[]
 
-== Prerequisites
-
-extends: default
-base:
-  font-color: #ff2299
+== [aqua]**Prerequisites**
 
 Before you start, Download and install Proxmox from : https://www.proxmox.com/en/downloads/category/iso-images-pve
 
@@ -29,15 +27,15 @@ Installation process can be found on youtube : https://www.youtube.com/watch?v=7
 
 The installation is easy, Flash the downloaded iso on a thumb drive and use it to boot your server from USB and the follow the prompt. you need to setup your storage after installation of Proxmox
 
-== **Create your infra VM**
+== [aqua]**Create your infra VM**
 
 We need to create a VM that will contain external Dependencys for OCP installation. This box would act as: 
 
-**Haproxy** : External load balancer for OCP masters
+* __Haproxy__ : External load balancer for OCP masters
 
-**Apache Webserver** : To host RHCOS images for OCP installation 
+* __Apache Webserver__ : To host RHCOS images for OCP installation 
 
-**PXE** : For PXE booting our OCP nodes
+* __PXE__ : For PXE booting our OCP nodes
 
 image::infra.png[100,100]
 
@@ -66,7 +64,7 @@ image::CreateVM5.png[500,500]
 image::CreateVM6.png[500,500]
 
 
-=== **Installing ansible and git**
+=== [aqua]**Installing ansible and git**
 
 To clone this repo and execute the script you need to install these two packages :
 
@@ -79,7 +77,7 @@ for centos follow these steps:
    yum -y install ansible git
 ```
 
-[blue]== **Prep Infra/Helper Box**
+== [aqua]**Prep Infra/Helper Box**
 
 Clone this repo into the VM you just created above
 ```
@@ -89,19 +87,17 @@ Clone this repo into the VM you just created above
 ```
 In this folder there are multiple yaml files for:
 
-     * CreateCluster.yml: for creating your OCP cluster 
+     * Creating your OCP cluster: CreateCluster.yml
 
-     * DleeteCluster.yml: for removing and cleaning OCP cluster from your Proxmox
+     * Removing and cleaning OCP cluster from your Proxmox: DeleteCluster.yml
 
-     * nfs-setup.yml: if you wish to use nfs as your storage provider of OCP ( you need to have a nfs server ready to use this).
+     * Configuration variables for intstallation: vars.yml
 
-     * vars.yml: variables to be used for your OCP intstallation
-
-=== **Customization and Preparation**
+=== [aqua]**Customization and Preparation**
 
 There are couple places that you need to add your local and personal information before you can run the installer.
 
-=== **proxmox/vars.yml**
+==== [big teal]__**proxmox/vars.yml**__
 
 Before we start installing OCP cluster we need to update this file. You need the folowing information: 
        IP address of your proxmox server, the name of your Proxmox server (default is pve), and the local domain you need to use for OCP installation.if you would like you can change the clusterID as well this is usefull if you are planning to have multiple OCP cluster installed. 
@@ -112,12 +108,16 @@ Before we start installing OCP cluster we need to update this file. You need the
          name: 'pve'
       clusterID: ocp4
       domain: < you domain : example.lab >
+      ext_haproxy_ip: <IP address of your Infra/Helper server>
+      nfs_provisioner:
+         - {ip: '<IP address of nfs server>', path: '<export path on nfs server>' }
 ```
 Script will use this data to build your VMs and setup your infra/helper machine. pay attention to the Mac address and the IP addresses assiged to each machine if these are used in your end you can modified the values try to update the macstart and leave the rest as this would help you identify machines easier.
 
-=== **templates/install-config.yml**
+==== [big teal]__**templates/install-config.yml**__
 
-In this file you need to add your continer registery Pull secret 
+
+In this file you need to add your continer registery Pull secret
 
 ```
    pullSecret: < Add your Pull secret from cloud.redhat.com > 
@@ -138,9 +138,9 @@ Now you need to create you own ssh key and add the public key to this file.
 ```
 Add your pub key to the authorized_keys on the proxmox box so the user that would run the ansible playbook can ssh to box with no password.
 
-=== ** Setup Ansible user **
+=== [aqua]**Setup Ansible user**
 
-=== ** Setup Infra/Helper box**
+=== [aqua]**Setup Infra/Helper box**
 
 It is time to install requiered pakages, open ports, setup PXE boot and ...
 execute the following command in Proxmox-OCP-Installer/proxmox
@@ -149,7 +149,7 @@ execute the following command in Proxmox-OCP-Installer/proxmox
    ansible-playbook CreateCluster.yml --tags build_infra 
 ```
 
-=== ** Validate the infra/Helper box
+=== [aqua]** Validate the infra/Helper box **
 
 lets validate that all the parts are installed and startup: Haproxy: Using oyur browser go to the following link
 
@@ -165,14 +165,14 @@ image::apache.png[500,500]
 
 
 
-== ** Install Openshift 4.x **
+== [aqua]** Install Openshift 4.x **
 
 First we need to get the correct version of openshift installer and the RHCOS, to do that we need to execute the following command: 
 ```
    ansible-playbook CreateCluster.yml --tags prep_install
 ```
 
-=== ** Validate preperation step  **
+=== [aqua]** Validate preperation step  **
 
 ```
    http://<ifra IP address>:8080/install
@@ -191,7 +191,7 @@ ls /var/lib/tftpboot/pxelinux.cfg
 ```
 image::pxe.png[500,500]
 
-=== ** installing Openshift 4.x CLuster  **
+=== [aqua]** installing Openshift 4.x CLuster  **
 
 At this point we ahev everything we need to install openshift so lets run the OCP installation:
 
@@ -200,5 +200,6 @@ At this point we ahev everything we need to install openshift so lets run the OC
 ```  
 
 This will take 40 to 50 minutes so go get to coffee and do other work that you push back till we setup your OCP cluster.
-=== ** Post Installation steps **
+
+=== [aqua]** Post Installation steps **
 
