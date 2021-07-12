@@ -10,6 +10,8 @@ endif::[]
 ====================
 :imagesdir: img
 
+:toc:
+
 == Prerequisites
 
 Before you start, Download and install Proxmox from : https://www.proxmox.com/en/downloads/category/iso-images-pve
@@ -72,29 +74,29 @@ for centos follow these steps:
 
 == **Prep Infra/Helper Box**
 
-  Clone this repo to the VM you just created above
+Clone this repo into the VM you just created above
 ```
   git clone https://github.com/Keyvan-rh/Proxmox-OCP-Installer.git
   cd Proxmox-OCP-Installer
   cd proxmox
 ```
-  In this folder there are multiple yaml files for:
+In this folder there are multiple yaml files for:
 
-     CreateCluster.yml: for creating your OCP cluster 
+     * CreateCluster.yml: for creating your OCP cluster 
 
-     DleeteCluster.yml: for removing and cleaning OCP cluster from your Proxmox
+     * DleeteCluster.yml: for removing and cleaning OCP cluster from your Proxmox
 
-     nfs-setup.yml: if you wish to use nfs as your storage provider of OCP ( you need to have a nfs server ready to use this).
+     * nfs-setup.yml: if you wish to use nfs as your storage provider of OCP ( you need to have a nfs server ready to use this).
 
-     vars.yml: variables to be used for your OCP intstallation
+     * vars.yml: variables to be used for your OCP intstallation
 
 === **Customization and Preparation**
 
-   There are couple places that you need to add your local and personal information before you can run the installer.
+There are couple places that you need to add your local and personal information before you can run the installer.
 
 === **proxmox/vars.yml**
 
-   Before we start installing OCP cluster we need to update this file. You need the folowing information: 
+Before we start installing OCP cluster we need to update this file. You need the folowing information: 
        IP address of your proxmox server, the name of your Proxmox server (default is pve), and the local domain you need to use for OCP installation.if you would like you can change the clusterID as well this is usefull if you are planning to have multiple OCP cluster installed. 
 
 ```
@@ -104,11 +106,11 @@ for centos follow these steps:
       clusterID: ocp4
       domain: < you domain : example.lab >
 ```
-   Script will use this data to build your VMs and setup your infra/helper machine. pay attention to the Mac address and the IP addresses assiged to each machine if these are used in your end you can modified the values try to update the macstart and leave the rest as this would help you identify machines easier.
+Script will use this data to build your VMs and setup your infra/helper machine. pay attention to the Mac address and the IP addresses assiged to each machine if these are used in your end you can modified the values try to update the macstart and leave the rest as this would help you identify machines easier.
 
 === **templates/install-config.yml**
 
-   In this file you need to add your continer registery Pull secret 
+In this file you need to add your continer registery Pull secret 
 
 ```
    pullSecret: < Add your Pull secret from cloud.redhat.com > 
@@ -122,24 +124,27 @@ image::PullSecret3.png[500,500]
 image::PullSecret4.png[500,500]
 image::PullSecret5.png[500,500]
 
-   Now you need to create you own ssh key and add the public key to this file.
+Now you need to create you own ssh key and add the public key to this file.
 
 ```
    ssh-keygen -t rsa -b 4096 -N ''
 ```
-   Add your pub key to the authorized_keys on the proxmox box so the user that would run the ansible playbook can ssh to box with no password.
-=== **Setup Ansible user **
+Add your pub key to the authorized_keys on the proxmox box so the user that would run the ansible playbook can ssh to box with no password.
 
-=== **Setup Infra/Helper box**
-   Now is time to install pakages, open ports, setup PXE boot and ...
-   execute the following command in Proxmox-OCP-Installer/proxmox
+=== ** Setup Ansible user **
+
+=== ** Setup Infra/Helper box**
+
+It is time to install requiered pakages, open ports, setup PXE boot and ...
+execute the following command in Proxmox-OCP-Installer/proxmox
 
 ```
    ansible-playbook CreateCluster.yml --tags build_infra 
 ```
 
 === ** Validate the infra/Helper box
-   lets validate that all the parts are installed and startup: Haproxy: Using oyur browser go to the following link
+
+lets validate that all the parts are installed and startup: Haproxy: Using oyur browser go to the following link
 
 ```
    http://<ifra IP address>:9000/
@@ -155,10 +160,11 @@ image::apache.png[500,500]
 
 == ** Install Openshift 4.x **
 
-   First we need to get the correct version of openshift installer and the RHCOS, to do that we need to execute the following command: 
+First we need to get the correct version of openshift installer and the RHCOS, to do that we need to execute the following command: 
 ```
    ansible-playbook CreateCluster.yml --tags prep_install
 ```
+
 === ** Validate preperation step  **
 
 ```
@@ -178,13 +184,14 @@ ls /var/lib/tftpboot/pxelinux.cfg
 ```
 image::pxe.png[500,500]
 
-=== ** installing OCP CLuster  **
+=== ** installing Openshift 4.x CLuster  **
 
-   Now that we have the everything we need we can install the cluster:
+At this point we ahev everything we need to install openshift so lets run the OCP installation:
+
 ```
    ansible-playbook CreateCluster.yml --tags install_ocp
 ```  
 
-   This will take 40 to 50 minutes so go get to coffee and do other work that you push back till we setup your OCP cluster.
+This will take 40 to 50 minutes so go get to coffee and do other work that you push back till we setup your OCP cluster.
 === ** Post Installation steps **
 
