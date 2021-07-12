@@ -14,6 +14,8 @@ endif::[]
 
 == [blue] Prerequisites
 
+[red]#this is printed in red#
+
 Before you start, Download and install Proxmox from : https://www.proxmox.com/en/downloads/category/iso-images-pve
 
 image::Proxmox.png[500,500]
