@@ -1,5 +1,7 @@
 ifdef::env-github[]
 :toc: macro
+:outfilesuffix: .adoc
+:!toc-title:
 :tip-caption: :bulb:
 :note-caption: :information_source:
 :important-caption: :heavy_exclamation_mark:
@@ -11,9 +13,13 @@ endif::[]
 ====================
 :imagesdir: img
 
+toc::[]
 
 == Prerequisites
 
+extends: default
+base:
+  font-color: #ff2299
 
 Before you start, Download and install Proxmox from : https://www.proxmox.com/en/downloads/category/iso-images-pve
 
