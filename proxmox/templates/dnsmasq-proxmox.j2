@@ -1,0 +1,49 @@
+# If you want dnsmasq to change uid and gid to something other
+# than the default, edit the following lines.
+#user=dnsmasq
+#group=dnsmasq
+
+conf-dir=/etc/dnsmasq.d,.rpmnew,.rpmsave,.rpmorig
+listen-address=::1,127.0.0.1,{{ proxmox.subnet }}.{{ proxmox.ip }}
+#expand-hosts
+strict-order
+domain={{ domain }}
+#resolv-file=/tmp/resolv.dnsmasq
+resolv-file=/etc/resolv.dnsmasq
+#pse boot
+dhcp-boot=pxelinux.0,{{ infra.name }},{{ proxmox.subnet }}.{{ infra.ip }}
+dhcp-authoritative
+dhcp-range={{ proxmox.subnet }}.2,{{ proxmox.subnet }}.250,255.255.255.0,1440m
+dhcp-option=3,{{ proxmox.subnet }}.{{ proxmox.ip }}
+
+# ocp
+dhcp-host={{ ansible_default_ipv4.macaddress }},{{ actual_hostname }},{{ ansible_default_ipv4.address }},infinite
+dhcp-host={{ macstart }}{{ mac }}{{ vms_info[0].macend }},{{ vms_info[0].name }},{{ proxmox.subnet }}.{{ vms_info[0].ipadd }},infinite
+dhcp-host={{ macstart }}{{ mac }}{{ vms_info[1].macend }},{{ vms_info[1].name }},{{ proxmox.subnet }}.{{ vms_info[1].ipadd }},infinite
+dhcp-host={{ macstart }}{{ mac }}{{ vms_info[2].macend }},{{ vms_info[2].name }},{{ proxmox.subnet }}.{{ vms_info[2].ipadd }},infinite
+dhcp-host={{ macstart }}{{ mac }}{{ vms_info[3].macend }},{{ vms_info[3].name }},{{ proxmox.subnet }}.{{ vms_info[3].ipadd }},infinite
+dhcp-host={{ macstart }}{{ mac }}{{ vms_info[4].macend }},{{ vms_info[4].name }},{{ proxmox.subnet }}.{{ vms_info[4].ipadd }},infinite
+dhcp-host={{ macstart }}{{ mac }}{{ vms_info[5].macend }},{{ vms_info[5].name }},{{ proxmox.subnet }}.{{ vms_info[5].ipadd }},infinite
+dhcp-host={{ macstart }}{{ mac }}{{ vms_info[6].macend }},{{ vms_info[6].name }},{{ proxmox.subnet }}.{{ vms_info[6].ipadd }},infinite
+
+#bogus-priv
+stop-dns-rebind
+cache-size=1500
+
+
+
+# ocp
+address=/{{ actual_hostname }}/{{ ansible_default_ipv4.address }}
+address=/api-int.{{ clusterID }}.{{ domain }}/{{ proxmox.subnet }}.{{ infra.ip }}
+address=/api.{{ clusterID }}.keyvan.home/{{ proxmox.subnet }}.{{ infra.ip }}
+address=/*/apps.{{ clusterID }}.{{ domain }}/{{ proxmox.subnet }}.{{ infra.ip }}
+address=/{{ vms_info[0].name }}.{{ domain }}/{{ proxmox.subnet }}.{{ vms_info[0].ipadd }}
+address=/{{ vms_info[1].name }}.{{ clusterID }}.{{ domain }}/{{ proxmox.subnet }}.{{ vms_info[1].ipadd }}
+address=/{{ vms_info[2].name }}.{{ clusterID }}.{{ domain }}/{{ proxmox.subnet }}.{{ vms_info[2].ipadd }}
+address=/{{ vms_info[3].name }}.{{ clusterID }}.{{ domain }}/{{ proxmox.subnet }}.{{ vms_info[3].ipadd }}
+address=/{{ vms_info[1].name }}.{{ domain }}/{{ proxmox.subnet }}.{{ vms_info[1].ipadd }}
+address=/{{ vms_info[2].name }}.{{ domain }}/{{ proxmox.subnet }}.{{ vms_info[2].ipadd }}
+address=/{{ vms_info[3].name }}.{{ domain }}/{{ proxmox.subnet }}.{{ vms_info[3].ipadd }}
+address=/{{ vms_info[4].name }}.{{ domain }}/{{ proxmox.subnet }}.{{ vms_info[4].ipadd }}
+address=/{{ vms_info[5].name }}.{{ domain }}/{{ proxmox.subnet }}.{{ vms_info[5].ipadd }}
+address=/{{ vms_info[6].name }}.{{ domain }}/{{ proxmox.subnet }}.{{ vms_info[6].ipadd }}

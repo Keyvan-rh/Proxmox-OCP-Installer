@@ -36,7 +36,7 @@
         name: 
           - "{{ item }}"
         state: present
-      loop: "{{ packages }}"
+      loop: "{{ infra.packages }}"
       tags:
          - build_infra
     - name: copy httpd.conf to use port 8080
@@ -70,22 +70,6 @@
          - build_infra
     - name: Copy over files needed for TFTP
       shell: "cp -a /usr/share/syslinux/* /var/lib/tftpboot"
-      tags:
-         - build_infra
-    - name: setup dnsmasq
-      template:
-        src: ./templates/dnsmasq.j2
-        dest: /etc/dnsmasq.conf
-        force: yes
-        mode: "u=rw,g=r,o=r"
-      tags:
-         - build_infra
-    - name: Copy resolv.dnsmasq this would provide external dns server 
-      template:
-        src: ./templates/resolv.dnsmasq
-        dest: /etc/resolv.dnsmasq
-        force: yes
-        mode: "u=rw,g=r,o=r"
       tags:
          - build_infra
     - name: configure haproxy
@@ -126,13 +110,6 @@
          - build_infra
     - name: restart tftp service
       service:
-        name: dnsmasq
-        enabled: yes
-        state: restarted
-      tags:
-         - build_infra
-    - name: restart tftp service
-      service:
         name: httpd
         enabled: yes
         state: restarted
@@ -144,7 +121,7 @@
         immediate: yes
         state: enabled
         port: "{{ item }}"
-      loop: "{{ ports }}"
+      loop: "{{ infra.ports }}"
       run_once: true
       tags:
          - build_infra
@@ -153,14 +130,10 @@
         path: "{{ item }}"
         state: absent
       with_items:
-        - "../ocp4"
+        - "{{ playbook_dir }}/../ocp4"
         - "/var/www/html/ignition"
         - "/var/www/html/install"
-        - "../openshift-*"
-        - "../*.img"
-        - "../rhcos-live-*"
-        - "../oc"
-        - "../kubectl"
+        - "/tmp/openshift-*"
         - "/root/.kube"
       tags:
          - prep_install
@@ -170,7 +143,7 @@
         state: directory
       with_items:
         - "/root/.kube"
-        - "../ocp4"
+        - "{{ playbook_dir }}/../ocp4"
         - "/var/www/html/ignition"
         - "/var/www/html/install"
       tags:
@@ -190,29 +163,31 @@
     - name: Copy install-config 
       template:
         src: ./templates/install-config.ocp
-        dest: ../ocp4/install-config.yaml
+        dest: "{{ playbook_dir }}/../ocp4/install-config.yaml"
         force: yes
         mode: "u=rw,g=r,o=r"
       tags:
          - prep_install
     - name: download OCP installer
-      get_url: url={{ client_download_url }}/{{ item }} dest=./.
+      get_url: url={{ client_download_url }}/{{ item }} dest=/tmp/{{ item }}
       with_items: "{{ ocp_client }}"
       tags:
         - prep_install
     - name: untar and copy client apps
       ansible.builtin.unarchive:
-        src: "{{ item }}"
+        src: /tmp/{{ item }}
         dest: /usr/local/bin/.
       with_items: "{{ ocp_client }}"
       tags:
          - prep_install
+         - testunzip
     - name: Create ignition files
       shell:
-        chdir: ../
+        chdir: "{{ playbook_dir }}/../"
         cmd: ./11-prep-ignitions.sh
       tags:
          - prep_install
+         - test
 
   
 - name: Create OCP VMs and start them in sequence
@@ -222,7 +197,7 @@
     - vars.yml 
   tasks:
     - name: Create new VMs for OCP cluster 
-      command: qm create "{{ vimidStart }}{{ item.vimid }}" --net0 virtio="{{ macstart }}{{ mac }}{{ item.macend }}",bridge=vmbr0 --name "{{ item.name }}"  --scsihw virtio-scsi-pci --scsi0 VMs:150,format=qcow2 --cores "{{ item.cpu }}" --memory "{{ item.mem }}"
+      command: qm create "{{ vimidStart }}{{ item.vimid }}" --net0 virtio="{{ macstart }}{{ mac }}{{ item.macend }}",bridge=vmbr1 --name "{{ item.name }}"  --scsihw virtio-scsi-pci --scsi0 VMs:150,format=qcow2 --cores "{{ item.cpu }}" --memory "{{ item.mem }}" -cpu cputype="host"
       loop: "{{ vms_info }}"
       tags:
          - install_ocp
@@ -231,7 +206,7 @@
       tags:
          - install_ocp
     - name: wait till bootstarp is ready
-      shell: curl http://{{ ext_haproxy_ip }}:9000 |grep controlplanemc/{{ vms_info[0].name }}
+      shell: curl http://{{ proxmox.subnet }}.{{ infra.ip }}:9000 |grep controlplanemc/{{ vms_info[0].name }}
       register: result
       until: result.stdout.find("active_up") != -1 
       retries: 60
@@ -239,7 +214,7 @@
       tags:
          - install_ocp
     - name: wait till bootstarp is ready
-      shell: curl http://{{ ext_haproxy_ip }}:9000 |grep controlplaneapi/{{ vms_info[0].name }}
+      shell: curl http://{{ proxmox.subnet }}.{{ infra.ip }}:9000 |grep controlplaneapi/{{ vms_info[0].name }}
       register: result
       until: result.stdout.find("active_up") != -1
       retries: 60
@@ -255,7 +230,7 @@
       tags:
          - install_ocp
     - name: wait till master3 amc is ready
-      shell: curl http://{{ ext_haproxy_ip }}:9000 |grep controlplanemc/{{ vms_info[3].name }}
+      shell: curl http://{{ proxmox.subnet }}.{{ infra.ip }}:9000 |grep controlplanemc/{{ vms_info[3].name }}
       register: result
       until: result.stdout.find("active_up") != -1
       retries: 100
@@ -263,7 +238,7 @@
       tags:
          - install_ocp
     - name: wait till master3 api is ready
-      shell: curl http://{{ ext_haproxy_ip }}:9000 |grep controlplaneapi/{{ vms_info[3].name }}
+      shell: curl http://{{ proxmox.subnet }}.{{ infra.ip }}:9000 |grep controlplaneapi/{{ vms_info[3].name }}
       register: result
       until: result.stdout.find("active_up") != -1
       retries: 100
@@ -271,7 +246,7 @@
       tags:
          - install_ocp
     - name: wait till master1 api is ready
-      shell: curl http://{{ ext_haproxy_ip }}:9000 |grep controlplaneapi/{{ vms_info[1].name }}
+      shell: curl http://{{ proxmox.subnet }}.{{ infra.ip }}:9000 |grep controlplaneapi/{{ vms_info[1].name }}
       register: result
       until: result.stdout.find("active_up") != -1
       retries: 100
@@ -279,7 +254,7 @@
       tags:
          - install_ocp
     - name: wait till master1 emc is ready
-      shell: curl http://{{ ext_haproxy_ip }}:9000 |grep controlplanemc/{{ vms_info[1].name }}
+      shell: curl http://{{ proxmox.subnet }}.{{ infra.ip }}:9000 |grep controlplanemc/{{ vms_info[1].name }}
       register: result
       until: result.stdout.find("active_up") != -1
       retries: 100
@@ -308,7 +283,7 @@
   tasks:
     - name: Copy OCP Auth to for generic access
       copy:
-        src: ../ocp4/auth/kubeconfig
+        src: "{{ playbook_dir }}/../ocp4/auth/kubeconfig"
         dest: ~/.kube/config
         force: yes
         mode: "u=rx,g=rwx,o=rwx"
@@ -316,7 +291,7 @@
          - install_ocp
     - name: Approve certs
       shell:
-        chdir: ../
+        chdir: "{{ playbook_dir }}/../"
         cmd: ./31-approve-certs.sh
       loop: [1,2,3,4,5,6,7,8,9]
       loop_control:
@@ -325,13 +300,13 @@
          - install_ocp
     - name: wait for complition of installer 
       shell:
-        chdir: ../ocp4
+        chdir: "{{ playbook_dir }}/../ocp4"
         cmd: openshift-install wait-for install-complete 
       tags:
          - install_ocp
     - name: OCP admin password
       shell:
-        chdir: ../ocp4/auth
+        chdir: "{{ playbook_dir }}/../ocp4/auth"
         cmd: cat kubeadmin-password
       register: kubeadmin
       tags:
@@ -351,6 +326,6 @@
         - "oc patch configs.imageregistry.operator.openshift.io cluster --type merge --patch '{\"spec\":{\"managementState\":\"Managed\"}}'"
         - "oc patch configs.imageregistry.operator.openshift.io cluster --type merge --patch '{\"spec\":{\"storage\":{\"emptyDir\":{}}}}'"
       environment:
-        KUBECONFIG: '../ocp4/auth/kubeconfig'
+        KUBECONFIG: '{{ playbook_dir }}/../ocp4/auth/kubeconfig'
       tags:
-         - install_ocp
+        - install_ocp
