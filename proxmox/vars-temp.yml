@@ -1,7 +1,7 @@
 proxmox:
   ip: 1
   subnet: 192.168.60
-  home_lan_ip: 192.168.1.74
+  home_lan_ip: <Add: full IP address of your proxmox>
   name: 'pve'
   packages: 
     - dnsmasq
@@ -10,7 +10,7 @@ proxmox:
     - 53/tcp
     - 53/udp
 infra: 
-  ip: 10
+  ip: <Add: last part of your infra/helper ip address. for example: 192.168.60.10 will be 10>
   name: infra
   packages:
    - httpd
@@ -33,17 +33,17 @@ infra:
    - 22623/tcp
    - tftp/tcp
 nfs:
-  ip: 51          
-  path: '/export'
+  ip: <Add: last part of your infra/helper ip address. for example: 192.168.60.51 will be 51>
+  path: <Add: your NFS export path example: '/export'>
 dns_gatway:
   ip: 0
 clusterID: ocp4
-domain: keyvan.home
+domain: <Add: Your domin home.lab >
 macstart: '52:50:56:'
 mac: '11'
 vimidStart: '20'
 vms_info:
-   - { vimid: '0', name: 'bootstrap11', macend: ':11:11', cpu: '8', mem: '16384', ign: 'pxe-bootstrap.j2', ipadd: '120' }
+   - { vimid: '0', name: 'bootstrap', macend: ':11:11', cpu: '8', mem: '16384', ign: 'pxe-bootstrap.j2', ipadd: '120' }
    - { vimid: '1', name: 'master0', macend: ':22:11', cpu: '8', mem: '16384', ign: 'pxe-master.j2', ipadd: '121' }
    - { vimid: '2', name: 'master1', macend: ':22:22', cpu: '8', mem: '16384', ign: 'pxe-master.j2', ipadd: '122' }
    - { vimid: '3', name: 'master2', macend: ':22:33', cpu: '8', mem: '16384', ign: 'pxe-master.j2', ipadd: '123' }
@@ -52,13 +52,13 @@ vms_info:
    - { vimid: '6', name: 'worker2', macend: ':33:33', cpu: '8', mem: '32768', ign: 'pxe-worker.j2', ipadd: '113' }
 
 rhcos_download_url: https://mirror.openshift.com/pub/openshift-v4/x86_64/dependencies/rhcos/4.7/latest/
-# rhcos_download_url: https://mirror.openshift.com/pub/openshift-v4/x86_64/dependencies/rhcos/pre-release/latest
 rhcos:
    - rhcos-live-rootfs.x86_64.img
    - rhcos-live-kernel-x86_64
    - rhcos-live-initramfs.x86_64.img
 client_download_url: https://mirror.openshift.com/pub/openshift-v4/x86_64/clients/ocp/latest
-# client_download_url: https://mirror.openshift.com/pub/openshift-v4/x86_64/clients/ocp/candidate-4.8
 ocp_client:
    - openshift-install-linux.tar.gz
    - openshift-client-linux.tar.gz
+pullSecret: <Add: Your pullSecret from cloud.redhat.com encolose in single quotes '' >
+sshkey: <Add: Your public sshkey created on infra box encolose in single quotes '' >
