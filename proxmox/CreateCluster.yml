@@ -188,6 +188,14 @@
       tags:
          - prep_install
          - test
+    - name: set nfs file
+      template:
+        src: ./templates/OMV-nfs-provisioner-deployment.yaml
+        dest: "{{ playbook_dir }}/templates/nfs-provisioner-deployment.yaml"
+        force: yes
+        mode: "u=rw,g=r,o=r"
+      tags:
+         - install_nfs
 
   
 - name: Create OCP VMs and start them in sequence
@@ -316,6 +324,7 @@
          - install_ocp
     - name: Setup NFS storage
       ansible.builtin.shell:
+        chdir: "{{ playbook_dir }}"
         cmd: "{{ item }}"
       with_items:
         - "oc create -f templates/nfs-rbac.yaml -n default"
@@ -329,3 +338,13 @@
         KUBECONFIG: '{{ playbook_dir }}/../ocp4/auth/kubeconfig'
       tags:
         - install_ocp
+    - name: Setup NFS storage
+      ansible.builtin.shell:
+        chdir: "{{ playbook_dir }}"
+        cmd: "{{ item }}"
+      with_items:
+        - "oc create -f templates/nfs-provisioner-deployment.yaml -n default"
+      environment:
+        KUBECONFIG: '{{ playbook_dir }}/../ocp4/auth/kubeconfig'
+      tags:
+        - install_nfs

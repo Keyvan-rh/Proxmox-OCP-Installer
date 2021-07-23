@@ -4,7 +4,7 @@
 #group=dnsmasq
 
 conf-dir=/etc/dnsmasq.d,.rpmnew,.rpmsave,.rpmorig
-listen-address=::1,127.0.0.1,{{ proxmox.subnet }}.{{ proxmox.ip }}
+listen-address=::1,127.0.0.1,{{ proxmox.subnet }}.{{ proxmox.ip }},{{ proxmox.home_lan_ip }}
 #expand-hosts
 strict-order
 domain={{ domain }}
@@ -36,7 +36,7 @@ cache-size=1500
 address=/{{ actual_hostname }}/{{ ansible_default_ipv4.address }}
 address=/api-int.{{ clusterID }}.{{ domain }}/{{ proxmox.subnet }}.{{ infra.ip }}
 address=/api.{{ clusterID }}.keyvan.home/{{ proxmox.subnet }}.{{ infra.ip }}
-address=/*/apps.{{ clusterID }}.{{ domain }}/{{ proxmox.subnet }}.{{ infra.ip }}
+address=/*/apps.{{ clusterID }}.{{ domain }}/{{ proxmox.home_lan_ip }}
 address=/{{ vms_info[0].name }}.{{ domain }}/{{ proxmox.subnet }}.{{ vms_info[0].ipadd }}
 address=/{{ vms_info[1].name }}.{{ clusterID }}.{{ domain }}/{{ proxmox.subnet }}.{{ vms_info[1].ipadd }}
 address=/{{ vms_info[2].name }}.{{ clusterID }}.{{ domain }}/{{ proxmox.subnet }}.{{ vms_info[2].ipadd }}
