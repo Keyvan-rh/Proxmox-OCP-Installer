@@ -4,9 +4,9 @@
   vars_files:
     - vars.yml
   tasks:
-    - name: Stop VMs for OCP
+    - name: Stop OCP cluster VMs 
       command: qm stop "{{ vimidStart }}{{ item.vimid }}"
       loop: "{{ vms_info }}"
-    - name: Delete VMs for OCP
+    - name: Delete OCP cluster VMs
       command: qm destroy "{{ vimidStart }}{{ item.vimid }}"
       loop: "{{ vms_info }}"

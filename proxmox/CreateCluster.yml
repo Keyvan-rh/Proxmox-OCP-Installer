@@ -31,7 +31,7 @@
         mode: "u=rw,g=r,o=r"
       tags:
          - build_infra
-    - name: Install needed packages
+    - name: Install packages
       package:
         name: 
           - "{{ item }}"
@@ -39,7 +39,7 @@
       loop: "{{ infra.packages }}"
       tags:
          - build_infra
-    - name: copy httpd.conf to use port 8080
+    - name: Configure httpd to listen on 8080 
       template:
         src: ./templates/httpd.conf
         dest: /etc/httpd/conf/httpd.conf
@@ -47,11 +47,18 @@
         mode: "u=rw,g=r,o=r"
       tags:
          - build_infra
-    - name: Create TFTP config
+    - name: Create TFTP directories for auto boot and rhcos
       file:
-        path: /var/lib/tftpboot/pxelinux.cfg
+        path: "{{ item }}"
         state: directory
         mode: 0755
+      with_items:
+        - "/var/lib/tftpboot/pxelinux.cfg"
+        - "/var/lib/tftpboot/rhcos"
+      tags:
+         - build_infra
+    - name: setup TFTP
+      shell: "cp -a /usr/share/syslinux/* /var/lib/tftpboot"
       tags:
          - build_infra
     - name: restart tftp service
@@ -59,17 +66,6 @@
         name: tftp
         enabled: yes
         state: restarted
-      tags:
-         - build_infra
-    - name: Create TFTP RHCOS dir
-      file:
-        path: /var/lib/tftpboot/rhcos
-        state: directory
-        mode: 0755
-      tags:
-         - build_infra
-    - name: Copy over files needed for TFTP
-      shell: "cp -a /usr/share/syslinux/* /var/lib/tftpboot"
       tags:
          - build_infra
     - name: configure haproxy
@@ -92,7 +88,7 @@
         state: restarted
       tags:
          - build_infra
-    - name: Ansible remove file glob
+    - name: Cleanup old auto pxeboot files 
       file:
         path: /var/lib/tftpboot/pxelinux.cfg/{{ ( '01-' + macstart + mac + item.macend ) | replace(':','-') }}
         state: absent
@@ -125,7 +121,7 @@
       run_once: true
       tags:
          - build_infra
-    - name: Cleanup files 
+    - name: Cleanup left over files from previous install  
       file:
         path: "{{ item }}"
         state: absent
@@ -137,7 +133,7 @@
         - "/root/.kube"
       tags:
          - prep_install
-    - name: Prep directories
+    - name: Create needed directories 
       file:
         path: "{{ item }}"
         state: directory
@@ -148,19 +144,12 @@
         - "/var/www/html/install"
       tags:
          - prep_install
-    - name: Ansible remove file glob
-      file:
-        path: /var/www/html/install/{{ item }}
-        state: absent
-      with_items: "{{ rhcos }}"
-      tags:
-         - prep_install
-    - name: download sources
+    - name: download RHCOS
       get_url: url={{ rhcos_download_url }}/{{ item }} dest=/var/www/html/install/.
       with_items: "{{ rhcos }}"
       tags:
         - prep_install
-    - name: Copy install-config 
+    - name: Setup install-config.yaml 
       template:
         src: ./templates/install-config.ocp
         dest: "{{ playbook_dir }}/../ocp4/install-config.yaml"
@@ -168,12 +157,19 @@
         mode: "u=rw,g=r,o=r"
       tags:
          - prep_install
+    - name: Cleanup client apps oc, kubctl, openshift-install
+      file:
+        path: /tmp/{{ item }}
+        state: absent
+      with_items: "{{ ocp_client }}"
+      tags:
+         - prep_install
     - name: download OCP installer
       get_url: url={{ client_download_url }}/{{ item }} dest=/tmp/{{ item }}
       with_items: "{{ ocp_client }}"
       tags:
         - prep_install
-    - name: untar and copy client apps
+    - name: extract and copy client apps oc, kubctl, openshift-install
       ansible.builtin.unarchive:
         src: /tmp/{{ item }}
         dest: /usr/local/bin/.
@@ -188,7 +184,7 @@
       tags:
          - prep_install
          - test
-    - name: set nfs file
+    - name: configure  nfs provisioner with correct nfs server info
       template:
         src: ./templates/OMV-nfs-provisioner-deployment.yaml
         dest: "{{ playbook_dir }}/templates/nfs-provisioner-deployment.yaml"
@@ -213,7 +209,7 @@
       command: qm start "{{ vimidStart }}{{ vms_info[0].vimid }}" 
       tags:
          - install_ocp
-    - name: wait till bootstarp is ready
+    - name: wait till bootstarp is ready step 1
       shell: curl http://{{ proxmox.subnet }}.{{ infra.ip }}:9000 |grep controlplanemc/{{ vms_info[0].name }}
       register: result
       until: result.stdout.find("active_up") != -1 
@@ -221,7 +217,7 @@
       delay: 60
       tags:
          - install_ocp
-    - name: wait till bootstarp is ready
+    - name: wait till bootstarp is ready step 2
       shell: curl http://{{ proxmox.subnet }}.{{ infra.ip }}:9000 |grep controlplaneapi/{{ vms_info[0].name }}
       register: result
       until: result.stdout.find("active_up") != -1
@@ -237,7 +233,7 @@
         - "{{ vms_info[3] }}"
       tags:
          - install_ocp
-    - name: wait till master3 amc is ready
+    - name: wait till master3 amc is ready step 1
       shell: curl http://{{ proxmox.subnet }}.{{ infra.ip }}:9000 |grep controlplanemc/{{ vms_info[3].name }}
       register: result
       until: result.stdout.find("active_up") != -1
@@ -245,7 +241,7 @@
       delay: 60
       tags:
          - install_ocp
-    - name: wait till master3 api is ready
+    - name: wait till master3 api is ready step 2
       shell: curl http://{{ proxmox.subnet }}.{{ infra.ip }}:9000 |grep controlplaneapi/{{ vms_info[3].name }}
       register: result
       until: result.stdout.find("active_up") != -1
@@ -322,15 +318,11 @@
     - debug: var=kubeadmin.stdout_lines
       tags:
          - install_ocp
-    - name: Setup NFS storage
+    - name: Setup OCP registery with no persistent storage
       ansible.builtin.shell:
         chdir: "{{ playbook_dir }}"
         cmd: "{{ item }}"
       with_items:
-        - "oc create -f templates/nfs-rbac.yaml -n default"
-        - "oc create -f templates/nfs-sc.yaml -n default"
-        - "oc create -f templates/OMV-nfs-provisioner-deployment.yaml -n default"
-        - "oc patch storageclass nfs -p '{\"metadata\": {\"annotations\": {\"storageclass.kubernetes.io/is-default-class\": \"true\"}}}'"
         - "oc patch configs.imageregistry.operator.openshift.io/cluster --type merge -p '{\"spec\":{\"defaultRoute\":true}}'"
         - "oc patch configs.imageregistry.operator.openshift.io cluster --type merge --patch '{\"spec\":{\"managementState\":\"Managed\"}}'"
         - "oc patch configs.imageregistry.operator.openshift.io cluster --type merge --patch '{\"spec\":{\"storage\":{\"emptyDir\":{}}}}'"
@@ -343,7 +335,10 @@
         chdir: "{{ playbook_dir }}"
         cmd: "{{ item }}"
       with_items:
+        - "oc create -f templates/nfs-rbac.yaml -n default"
+        - "oc create -f templates/nfs-sc.yaml -n default"
         - "oc create -f templates/nfs-provisioner-deployment.yaml -n default"
+        - "oc patch storageclass nfs -p '{\"metadata\": {\"annotations\": {\"storageclass.kubernetes.io/is-default-class\": \"true\"}}}'"
       environment:
         KUBECONFIG: '{{ playbook_dir }}/../ocp4/auth/kubeconfig'
       tags:

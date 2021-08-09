@@ -3,4 +3,5 @@
 {{ proxmox.subnet }}.{{ infra.ip }} {{ actual_hostname }}
 {{ proxmox.subnet }}.{{ nfs.ip }}  homeNAS
 {{ proxmox.subnet }}.{{ proxmox.ip }}  {{ proxmox.name }}
+192.168.60.83 quay.keyvan.home
 

@@ -12,9 +12,9 @@ metadata:
   name: {{ clusterID }}
 networking:
   clusterNetworks:
-  - cidr: 10.254.0.0/16
-    hostPrefix: 24
-  networkType: OpenShiftSDN
+  - cidr: 10.128.0.0/14
+    hostPrefix: 23
+  networkType: OVNKubernetes
   serviceNetwork:
   - 172.30.0.0/16
 platform:
