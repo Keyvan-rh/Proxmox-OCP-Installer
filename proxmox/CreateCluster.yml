@@ -31,6 +31,7 @@
         mode: "u=rw,g=r,o=r"
       tags:
          - build_infra
+         - install_ocp
     - name: Install packages
       package:
         name: 
