@@ -122,6 +122,15 @@
       run_once: true
       tags:
          - build_infra
+    - name: add tftp service to  firewalld 
+      firewalld:
+        permanent: yes
+        immediate: yes
+        state: enabled
+        service: "tftp"
+      run_once: true
+      tags:
+         - build_infra
     - name: Cleanup left over files from previous install  
       file:
         path: "{{ item }}"

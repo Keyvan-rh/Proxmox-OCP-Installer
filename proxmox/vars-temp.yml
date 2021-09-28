@@ -21,6 +21,7 @@ infra:
    - bind-utils
    - tar
    - wget
+   - net-tools
   ports:
    - 67/udp
    - 53/tcp
@@ -31,7 +32,7 @@ infra:
    - 6443/tcp
    - 6443/udp
    - 22623/tcp
-   - tftp/tcp
+   - 9000
 nfs:
   ip: <Add: last part of your infra/helper ip address. for example: 192.168.60.51 will be 51>
   path: <Add: your NFS export path example: '/export'>

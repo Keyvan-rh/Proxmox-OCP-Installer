@@ -10,3 +10,7 @@
     - name: Delete OCP cluster VMs
       command: qm destroy "{{ vimidStart }}{{ item.vimid }}"
       loop: "{{ vms_info }}"
+      tags:
+        - delete_vms
+        
+
