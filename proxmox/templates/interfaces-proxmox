@@ -9,6 +9,13 @@
 # configuration from sourced files, so do not attempt to move any of
 # the PVE managed interfaces into external files!
 
+# Note:
+# static IP of the pve used in this is 192.168.1.74 remplace this with any other ip you may have used
+# if you have changed this ip make sure to change this in dnsmasq.conf file as well
+# secound subnet configured here for VMs under Proxmox is 192.168.60.x
+# if you need to change this change it in the dnsmasq.conf as well
+# The infra IP is set to 192.168.60.10 in dnsmasq if you change that you need to all instance of it in this file as well
+
 auto lo
 iface lo inet loopback
 
@@ -20,15 +27,15 @@ iface eno3 inet manual
 
 auto vmbr0
 iface vmbr0 inet static
-        address <static IP of the pve server Ex. 192.168.1.74 >/24
-        gateway <gateway of the pve server Ex. 192.168.1.1 >
+        address 192.168.1.74/24
+        gateway 192.168.1.1
         bridge-ports eno1
         bridge-stp off
         bridge-fd 0
 
 auto vmbr1
 iface vmbr1 inet static
-        address < address for all VMs on Proxmox Ex. 192.168.60.1 in this example 192.168.60.10 is the ip of the infra>
+        address 192.168.60.1
         netmask 255.255.255.0
         bridge-ports none
         bridge-stp off
