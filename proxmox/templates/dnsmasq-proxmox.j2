@@ -35,7 +35,7 @@ cache-size=1500
 # ocp
 address=/{{ actual_hostname }}/{{ ansible_default_ipv4.address }}
 address=/api-int.{{ clusterID }}.{{ domain }}/{{ proxmox.subnet }}.{{ infra.ip }}
-address=/api.{{ clusterID }}.keyvan.home/{{ proxmox.subnet }}.{{ infra.ip }}
+address=/api.{{ clusterID }}.{{ domain }}/{{ proxmox.subnet }}.{{ infra.ip }}
 address=/*/apps.{{ clusterID }}.{{ domain }}/{{ proxmox.home_lan_ip }}
 address=/{{ vms_info[0].name }}.{{ domain }}/{{ proxmox.subnet }}.{{ vms_info[0].ipadd }}
 address=/{{ vms_info[1].name }}.{{ clusterID }}.{{ domain }}/{{ proxmox.subnet }}.{{ vms_info[1].ipadd }}
