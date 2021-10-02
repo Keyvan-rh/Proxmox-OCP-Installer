@@ -29,6 +29,62 @@ The installation is easy, Flash the downloaded iso on a thumb drive and use it t
 
 NOTE: Setup the storage after installation of Proxmox based on your harware and storage availibility.
 
+=== [aqua]**Setup networking **
+
+To simplify the process and make sure this would work on most common home routers we need to setup the proxmox to use an internal network IP for our VMs. 
+
+Login to your Proxmox UI using the browser and create a new Linux Bridge as shown here:
+
+image::vmbr1Create.png[1000,1000]
+image::vmbr1Values.png[500,500]
+
+
+Now ssh to you pve(proxmox) box, we need 2 pakages to be install here "git" and "dnsmasq".
+
+```
+   sudo apt install dnsmasq -y
+   sudo apt install git -y
+```
+
+To make sue you can access OCP and and infra from your laptop we need to add some port forwarding to the network we just created "vmbr1"
+you can find a sample interface file in "Proxmox-OCP-Installer/tree/master/proxmox/templates" folder named "interfaces-proxmox" this is a full sample but you need to add this section under the vmbr1 in your "interface" file: 
+
+```
+  vi /etc/network/interfaces
+```
+   
+```
+  post-up echo 1 > /proc/sys/net/ipv4/ip_forward
+        post-up   iptables -t nat -A POSTROUTING -s '192.168.60.0/24' -o vmbr0 -j MASQUERADE
+        post-down iptables -t nat -D POSTROUTING -s '192.168.60.0/24' -o vmbr0 -j MASQUERADE
+        post-up iptables -t nat -A PREROUTING -i vmbr0 -p tcp --dport 2222 -j DNAT --to 192.168.60.10:22
+        post-down iptables -t nat -D PREROUTING -i vmbr0 -p tcp --dport 2222 -j DNAT --to 192.168.60.10:22
+        post-up iptables -t nat -A PREROUTING -i vmbr0 -p tcp --dport 9000 -j DNAT --to 192.168.60.10:9000
+        post-down iptables -t nat -D PREROUTING -i vmbr0 -p tcp --dport 9000 -j DNAT --to 192.168.60.10:9000
+        post-up iptables -t nat -A PREROUTING -i vmbr0 -p tcp --dport 22623 -j DNAT --to 192.168.60.10:22623
+        post-down iptables -t nat -D PREROUTING -i vmbr0 -p tcp --dport 22623 -j DNAT --to 192.168.60.10:22623
+        post-up iptables -t nat -A PREROUTING -i vmbr0 -p tcp --dport 80 -j DNAT --to 192.168.60.10:80
+        post-down iptables -t nat -D PREROUTING -i vmbr0 -p tcp --dport 80 -j DNAT --to 192.168.60.10:80
+        post-up iptables -t nat -A PREROUTING -i vmbr0 -p tcp --dport 6443 -j DNAT --to 192.168.60.10:6443
+        post-down iptables -t nat -D PREROUTING -i vmbr0 -p tcp --dport 6443 -j DNAT --to 192.168.60.10:6443
+        post-up iptables -t nat -A PREROUTING -i vmbr0 -p tcp --dport 8080 -j DNAT --to 192.168.60.10:8080
+        post-down iptables -t nat -D PREROUTING -i vmbr0 -p tcp --dport 8080 -j DNAT --to 192.168.60.10:8080
+        post-up iptables -t nat -A PREROUTING -i vmbr0 -p tcp --dport 443 -j DNAT --to 192.168.60.10:443
+        post-down iptables -t nat -D PREROUTING -i vmbr0 -p tcp --dport 443 -j DNAT --to 192.168.60.10:443
+        post-up iptables -t nat -A PREROUTING -i vmbr0 -p tcp --dport 8081 -j DNAT --to 192.168.60.10:8081
+        post-down iptables -t nat -D PREROUTING -i vmbr0 -p tcp --dport 8081 -j DNAT --to 192.168.60.10:8081
+```
+
+This will make sure you can access what we will install later on infra box and Openshift, you need to do one more thing before you can access all routes on OCP.
+You need to create a static route on your Router or for testing if you are using mac you can do the following:
+
+'''
+   sudo route -n add -net 192.168.60.0/24 192.168.1.74
+'''
+
+NOTE: replace the ips if you have created a differnt subnet for your VMs and the your proxmox has a differnt IP 
+
+Now lets setup the DNS that is requierd for Openshift installation. There is sample file in the template folder 
 == [aqua]**Create your infra VM**
 
 We need to create a VM that will contain external Dependencys for OCP installation. This box would act as: 
@@ -215,4 +271,17 @@ This will take 40 to 50 minutes so go get to coffee and do other work that you p
 NOTE: you can check the progress of installation in your command like and by going to looking at the external load balancer. first the bootstap will start and the end point will go green on the load balancer. When that is done the masters will start and after a while you should see their end points go green. AT this point the bootstarp will be shutdown and worker nodes will start.  
 
 === [aqua]** log in to your new OCP **
+
+You can access the Openshift UI at the following URL just replace the ClusterID and domain section with what you have configured in vars.yml
+
+https://console-openshift-console.apps.<ClusterID>.<domain> 
+
+User: kubeadmin
+Password: the password is print out at the end of the script. if you missed it you can go to the Infra/Helper VM go to were you clone the project and cd to "Proxmox-OCP-Installer" then run 51-wait-for-complete.sh this will print out all the info you need for your cluster.
+
+the automated script has installed ocp cluster and internal container registery but the registery is set to use the local storage which is fine for the home lab. 
+
+NOTE: if you would like to configure your registery to use your NAS you can execute the 61-setup-registery.sh and update the storage from "" to
+```
+```
 
