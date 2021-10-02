@@ -39,12 +39,7 @@ image::vmbr1Create.png[1000,1000]
 image::vmbr1Values.png[500,500]
 
 
-Now ssh to you pve(proxmox) box, we need 2 pakages to be install here "git" and "dnsmasq".
-
-```
-   sudo apt install dnsmasq -y
-   sudo apt install git -y
-```
+Now ssh to you pve(proxmox) box.
 
 To make sue you can access OCP and and infra from your laptop we need to add some port forwarding to the network we just created "vmbr1"
 you can find a sample interface file in "Proxmox-OCP-Installer/tree/master/proxmox/templates" folder named "interfaces-proxmox" this is a full sample but you need to add this section under the vmbr1 in your "interface" file: 
@@ -78,13 +73,14 @@ you can find a sample interface file in "Proxmox-OCP-Installer/tree/master/proxm
 This will make sure you can access what we will install later on infra box and Openshift, you need to do one more thing before you can access all routes on OCP.
 You need to create a static route on your Router or for testing if you are using mac you can do the following:
 
-'''
+```
    sudo route -n add -net 192.168.60.0/24 192.168.1.74
-'''
+```
+
 
 NOTE: replace the ips if you have created a differnt subnet for your VMs and the your proxmox has a differnt IP 
 
-Now lets setup the DNS that is requierd for Openshift installation. There is sample file in the template folder 
+
 == [aqua]**Create your infra VM**
 
 We need to create a VM that will contain external Dependencys for OCP installation. This box would act as: 
@@ -134,6 +130,13 @@ for centos follow these steps:
    sudo dnf install epel-release
    sudo dnf makecache
    yum -y install ansible git
+```
+=== {aqua}** lets finish the Proxmox installation
+   
+   Lets setup the DNS that is requierd for Openshift installation. There is template file in the template folder so we just  need to run the following command to build and push the dnsmasq to our PVE box:
+
+```
+   ansible-playbook Setup-proxmox.yml
 ```
 
 == [aqua]**Prep Infra/Helper Box**

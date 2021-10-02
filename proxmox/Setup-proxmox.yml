@@ -46,7 +46,7 @@
         mode: "u=rw,g=r,o=r"
     - name: Copy resolv.dnsmasq this would provide external dns server 
       template:
-        src: ./templates/resolv.dnsmasq
+        src: ./templates/resolv-proxmox.j2
         dest: /etc/resolv.dnsmasq
         force: yes
         mode: "u=rw,g=r,o=r"
@@ -71,8 +71,8 @@
           	post-down iptables -t nat -D POSTROUTING -s '{{ proxmox.subnet }}.0/24' -o vmbr0 -j MASQUERADE
           	post-up iptables -t nat -A PREROUTING -i vmbr0 -p tcp --dport 2222 -j DNAT --to {{ proxmox.subnet }}.{{ infra.ip }}:22
           	post-down iptables -t nat -D PREROUTING -i vmbr0 -p tcp --dport 2222 -j DNAT --to {{ proxmox.subnet }}.{{ infra.ip }}:22
-                post-up iptables -t nat -A PREROUTING -i vmbr0 -p tcp --dport 9000 -j DNAT --to {{ proxmox.subnet }}.{{ infra.ip }}:9000
-                post-down iptables -t nat -D PREROUTING -i vmbr0 -p tcp --dport 9000 -j DNAT --to {{ proxmox.subnet }}.{{ infra.ip }}:9000
+            post-up iptables -t nat -A PREROUTING -i vmbr0 -p tcp --dport 9000 -j DNAT --to {{ proxmox.subnet }}.{{ infra.ip }}:9000
+            post-down iptables -t nat -D PREROUTING -i vmbr0 -p tcp --dport 9000 -j DNAT --to {{ proxmox.subnet }}.{{ infra.ip }}:9000
     - name: restart dnsmasq service
       service:
         name: networking
