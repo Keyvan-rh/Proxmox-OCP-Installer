@@ -17,7 +17,7 @@ dhcp-range={{ proxmox.subnet }}.2,{{ proxmox.subnet }}.250,255.255.255.0,1440m
 dhcp-option=3,{{ proxmox.subnet }}.{{ proxmox.ip }}
 
 # ocp
-dhcp-host={{ ansible_default_ipv4.macaddress }},{{ actual_hostname }},{{ ansible_default_ipv4.address }},infinite
+dhcp-host={{ ansible_default_ipv4.macaddress }},{{ proxmox.name }},{{ ansible_default_ipv4.address }},infinite
 dhcp-host={{ macstart }}{{ mac }}{{ vms_info[0].macend }},{{ vms_info[0].name }},{{ proxmox.subnet }}.{{ vms_info[0].ipadd }},infinite
 dhcp-host={{ macstart }}{{ mac }}{{ vms_info[1].macend }},{{ vms_info[1].name }},{{ proxmox.subnet }}.{{ vms_info[1].ipadd }},infinite
 dhcp-host={{ macstart }}{{ mac }}{{ vms_info[2].macend }},{{ vms_info[2].name }},{{ proxmox.subnet }}.{{ vms_info[2].ipadd }},infinite

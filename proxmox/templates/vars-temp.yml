@@ -6,7 +6,8 @@ proxmox:
   name: 'pve'
   packages: 
     - dnsmasq
-    - python
+    - python3-apt
+    - net-tools
   ports:
     - 53/tcp
     - 53/udp
