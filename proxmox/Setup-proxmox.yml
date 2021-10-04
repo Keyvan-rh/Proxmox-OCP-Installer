@@ -4,34 +4,15 @@
   vars_files:
     - vars.yml
   environment:
-    KUBECONFIG:     
+    KUBECONFIG:  
+  gather_facts: True   
   tasks:
-    - name: get hostname to update hosts file
-      shell: echo $HOSTNAME
-      register: result
-    - set_fact:
-        actual_hostname: "{{ result.stdout }}"
-    - name: set hosts file 
-      template:
-        src: ./templates/hosts
-        dest: /etc/hosts
-        force: yes
-        mode: "u=rw,g=r,o=r"
     - name: set resolv.conf file
       template:
-        src: ./templates/resolv.j2
+        src: ./templates/resolv-proxmox.j2
         dest: /etc/resolv.conf
         force: yes
         mode: "u=rw,g=r,o=r"
-- name: Prep ignition files
-  hosts: pve
-  become: true
-  vars_files:
-    - vars.yml
-  gather_facts: True
-  tasks:
-    - set_fact:
-        actual_hostname: "pve"
     - name: Install needed packages
       package:
         name: 
@@ -42,12 +23,6 @@
       template:
         src: ./templates/dnsmasq-proxmox.j2
         dest: /etc/dnsmasq.conf
-        force: yes
-        mode: "u=rw,g=r,o=r"
-    - name: Copy resolv.dnsmasq this would provide external dns server 
-      template:
-        src: ./templates/resolv-proxmox.j2
-        dest: /etc/resolv.dnsmasq
         force: yes
         mode: "u=rw,g=r,o=r"
     - name: restart dnsmasq service
@@ -73,6 +48,8 @@
           	post-down iptables -t nat -D PREROUTING -i vmbr0 -p tcp --dport 2222 -j DNAT --to {{ proxmox.subnet }}.{{ infra.ip }}:22
             post-up iptables -t nat -A PREROUTING -i vmbr0 -p tcp --dport 9000 -j DNAT --to {{ proxmox.subnet }}.{{ infra.ip }}:9000
             post-down iptables -t nat -D PREROUTING -i vmbr0 -p tcp --dport 9000 -j DNAT --to {{ proxmox.subnet }}.{{ infra.ip }}:9000
+      tags:
+         - test 
     - name: restart dnsmasq service
       service:
         name: networking
