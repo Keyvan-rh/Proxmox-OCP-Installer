@@ -58,9 +58,7 @@
                 post-down iptables -t nat -D PREROUTING -i vmbr0 -p tcp --dport 8080 -j DNAT --to 192.168.70.10:8080
                 post-up iptables -t nat -A PREROUTING -i vmbr0 -p tcp --dport 443 -j DNAT --to 192.168.70.10:443
                 post-down iptables -t nat -D PREROUTING -i vmbr0 -p tcp --dport 443 -j DNAT --to 192.168.70.10:443
-      tags:
-         - test 
-    - name: restart dnsmasq service
+    - name: restart network service
       service:
         name: networking
         enabled: yes

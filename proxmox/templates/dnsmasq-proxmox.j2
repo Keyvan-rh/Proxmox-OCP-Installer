@@ -47,3 +47,7 @@ address=/{{ vms_info[3].name }}.{{ domain }}/{{ proxmox.subnet }}.{{ vms_info[3]
 address=/{{ vms_info[4].name }}.{{ domain }}/{{ proxmox.subnet }}.{{ vms_info[4].ipadd }}
 address=/{{ vms_info[5].name }}.{{ domain }}/{{ proxmox.subnet }}.{{ vms_info[5].ipadd }}
 address=/{{ vms_info[6].name }}.{{ domain }}/{{ proxmox.subnet }}.{{ vms_info[6].ipadd }}
+
+# ocp-sno
+address=/api.{{ sno_info[0].clusterID }}.{{ domain }}/{{ proxmox.subnet }}.{{ sno_info[0].ipadd }}
+address=/*/apps.{{ sno_info[0].clusterID }}.{{ domain }}/{{ proxmox.subnet }}.{{ sno_info[0].ipadd }}
