@@ -29,56 +29,92 @@ The installation is easy, Flash the downloaded iso on a thumb drive and use it t
 
 NOTE: Setup the storage after installation of Proxmox based on your harware and storage availibility.
 
-=== [aqua]**Setup networking **
-
-To simplify the process and make sure this would work on most common home routers we need to setup the proxmox to use an internal network IP for our VMs. 
-
-Login to your Proxmox UI using the browser and create a new Linux Bridge as shown here:
-
-image::vmbr1Create.png[1000,1000]
-image::vmbr1Values.png[500,500]
-
-
-Now ssh to you pve(proxmox) box.
-
-To make sue you can access OCP and and infra from your laptop we need to add some port forwarding to the network we just created "vmbr1"
-you can find a sample interface file in "Proxmox-OCP-Installer/tree/master/proxmox/templates" folder named "interfaces-proxmox" this is a full sample but you need to add this section under the vmbr1 in your "interface" file: 
+Now you need to ssh to your proxmox and instll two pakages before we can use automated install 
 
 ```
-  vi /etc/network/interfaces
-```
-   
-```
-  post-up echo 1 > /proc/sys/net/ipv4/ip_forward
-        post-up   iptables -t nat -A POSTROUTING -s '192.168.60.0/24' -o vmbr0 -j MASQUERADE
-        post-down iptables -t nat -D POSTROUTING -s '192.168.60.0/24' -o vmbr0 -j MASQUERADE
-        post-up iptables -t nat -A PREROUTING -i vmbr0 -p tcp --dport 2222 -j DNAT --to 192.168.60.10:22
-        post-down iptables -t nat -D PREROUTING -i vmbr0 -p tcp --dport 2222 -j DNAT --to 192.168.60.10:22
-        post-up iptables -t nat -A PREROUTING -i vmbr0 -p tcp --dport 9000 -j DNAT --to 192.168.60.10:9000
-        post-down iptables -t nat -D PREROUTING -i vmbr0 -p tcp --dport 9000 -j DNAT --to 192.168.60.10:9000
-        post-up iptables -t nat -A PREROUTING -i vmbr0 -p tcp --dport 22623 -j DNAT --to 192.168.60.10:22623
-        post-down iptables -t nat -D PREROUTING -i vmbr0 -p tcp --dport 22623 -j DNAT --to 192.168.60.10:22623
-        post-up iptables -t nat -A PREROUTING -i vmbr0 -p tcp --dport 80 -j DNAT --to 192.168.60.10:80
-        post-down iptables -t nat -D PREROUTING -i vmbr0 -p tcp --dport 80 -j DNAT --to 192.168.60.10:80
-        post-up iptables -t nat -A PREROUTING -i vmbr0 -p tcp --dport 6443 -j DNAT --to 192.168.60.10:6443
-        post-down iptables -t nat -D PREROUTING -i vmbr0 -p tcp --dport 6443 -j DNAT --to 192.168.60.10:6443
-        post-up iptables -t nat -A PREROUTING -i vmbr0 -p tcp --dport 8080 -j DNAT --to 192.168.60.10:8080
-        post-down iptables -t nat -D PREROUTING -i vmbr0 -p tcp --dport 8080 -j DNAT --to 192.168.60.10:8080
-        post-up iptables -t nat -A PREROUTING -i vmbr0 -p tcp --dport 443 -j DNAT --to 192.168.60.10:443
-        post-down iptables -t nat -D PREROUTING -i vmbr0 -p tcp --dport 443 -j DNAT --to 192.168.60.10:443
-        post-up iptables -t nat -A PREROUTING -i vmbr0 -p tcp --dport 8081 -j DNAT --to 192.168.60.10:8081
-        post-down iptables -t nat -D PREROUTING -i vmbr0 -p tcp --dport 8081 -j DNAT --to 192.168.60.10:8081
+   apt install git ansible
 ```
 
-This will make sure you can access what we will install later on infra box and Openshift, you need to do one more thing before you can access all routes on OCP.
-You need to create a static route on your Router or for testing if you are using mac you can do the following:
+Ansible need to ssh with no password so lets fix that:
 
 ```
-   sudo route -n add -net 192.168.60.0/24 192.168.1.74
+  ssh-keygen -t rsa -b 4096 -N ''
+  cat ~/.ssh/id_rsa.pub >>  ~/.ssh/authorized_keys
 ```
 
 
-NOTE: replace the ips if you have created a differnt subnet for your VMs and the your proxmox has a differnt IP 
+=== [aqua]** Prepare Proxmox **
+
+Before we start building let's take a look at overal topology diagram and what we are trying to build:  
+
+image::ocp_on_proxmox.png[500,500]
+
+As you can see our Proxmox will have two network bridge, One will be connecting to your home lan and has an IP address from your router (192.168.x.y)."Make sure to set this as an static IP"
+The second bridge is used for all VMs on Proxmox for OCP cluster. 
+This will give us the flexibility of using default IPs I have set for OCP cluster with no conflict with already used IPs in your home network.
+We will be using dnsmasq that would act as DHCP and DNS server to accomplish these tasks.
+But this created a new challenge as how can you access OCP UI and your application URL from your laptop/Desktop as you are not on the same network.
+After some thought and experience the easiest way I found was to add several routes to Proxmox for forward your request to our helper that is acting as a load balancer 
+in front of OCP cluster.
+
+Now that we know what we need on Proxmox lets set this up
+ssh to your proxmox and clone this git repo: 
+
+```
+  git clone https://github.com/Keyvan-rh/Proxmox-OCP-Installer.git
+  cd Proxmox-OCP-Installer
+  cd proxmox
+  inst_playbook="$PWD"
+```
+
+In this folder there are multiple yaml files for:
+
+     * Preping/Creating your infra/helper node and OCP cluster: CreateCluster.yml
+
+     * Removing OCP cluster from your Proxmox: DeleteCluster.yml
+
+     * Install and Setup dnsmasq on Proxmox: Setup-proxmox.yml
+
+     * Template for intstallation parameters: vars-temp.yml
+
+Copy the vars-temp.yml to vars.yml and make necessary changes based on your environment:
+
+```
+   cd "$inst_playbook"
+   cp vars-temp.yml vars.yml
+   nano vars.yml
+```
+
+After creating your vars.yml we are ready to setup our proxmox, run the following command in "Proxmox-OCP-Installer/proxmox" folder: 
+
+```
+   cd "$inst_playbook"
+   ansible-playbook Setup-proxmox.yml
+```
+
+This will make sure you can access what we will install later on infra box and Openshift environment, Reboot your box and make sure 
+you have 2 interface active and check that the dns is working for you:
+
+```
+   ip a
+   nslookup test.apps.<your clusterID>.<your domain>
+```
+
+image::network.png[500,500]
+
+
+One more thing before you can access all routes on OCP.
+You need to create a static route on your Router to forward all 192.168.60.0/24 request to your proxmox server.
+
+
+NOTE: For testing if you are using mac you can do the following:
+
+```
+   sudo route -n add -net 192.168.60.0/24 192.168.x.y
+```
+
+
+NOTE: replace 192.168.x.y with your proxmox IP and if you have used a diiferent subnet in your vars.yml change 192.168.60.0 to coorect subnet. 
 
 
 == [aqua]**Create your infra VM**
