@@ -15,6 +15,7 @@ dhcp-boot=pxelinux.0,{{ infra.name }},{{ proxmox.subnet }}.{{ infra.ip }}
 dhcp-authoritative
 dhcp-range={{ proxmox.subnet }}.2,{{ proxmox.subnet }}.250,255.255.255.0,1440m
 dhcp-option=3,{{ proxmox.subnet }}.{{ proxmox.ip }}
+dhcp-option=6,{{ proxmox.subnet }}.{{ proxmox.ip }},1.1.1.1
 
 # ocp
 dhcp-host={{ ansible_default_ipv4.macaddress }},{{ proxmox.name }},{{ ansible_default_ipv4.address }},infinite
@@ -25,6 +26,7 @@ dhcp-host={{ macstart }}{{ mac }}{{ vms_info[3].macend }},{{ vms_info[3].name }}
 dhcp-host={{ macstart }}{{ mac }}{{ vms_info[4].macend }},{{ vms_info[4].name }},{{ proxmox.subnet }}.{{ vms_info[4].ipadd }},infinite
 dhcp-host={{ macstart }}{{ mac }}{{ vms_info[5].macend }},{{ vms_info[5].name }},{{ proxmox.subnet }}.{{ vms_info[5].ipadd }},infinite
 dhcp-host={{ macstart }}{{ mac }}{{ vms_info[6].macend }},{{ vms_info[6].name }},{{ proxmox.subnet }}.{{ vms_info[6].ipadd }},infinite
+dhcp-host={{ macstart }}{{ mac }}{{ sno_info[0].macend }},{{ sno_info[0].name }},{{ proxmox.subnet }}.{{ sno_info[0].ipadd
 
 #bogus-priv
 stop-dns-rebind

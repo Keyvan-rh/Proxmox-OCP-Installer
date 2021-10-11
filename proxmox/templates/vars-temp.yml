@@ -34,14 +34,14 @@ infra:
    - 6443/tcp
    - 6443/udp
    - 22623/tcp
-   - 9000
+   - 9000/tcp
 nfs:
-  ip: <Add: last part of your infra/helper ip address. for example: 192.168.60.51 will be 51>
-  path: <Add: your NFS export path example: '/export'>
+  ip: <Add last part of your infra/helper ip address. for example: 192.168.60.51 will be 51>
+  path: <Add your NFS export path example: '/export'>
 dns_gatway:
   ip: 0
 clusterID: ocp4
-domain: <Add: Your domin home.lab >
+domain: <Add Your domin home.lab >
 macstart: '52:50:56:'
 mac: '11'
 vimidStart: '20'
@@ -54,6 +54,11 @@ vms_info:
    - { vimid: '5', name: 'worker1', macend: ':33:22', cpu: '8', mem: '32768', ign: 'pxe-worker.j2', ipadd: '112' }
    - { vimid: '6', name: 'worker2', macend: ':33:33', cpu: '8', mem: '32768', ign: 'pxe-worker.j2', ipadd: '113' }
 
+# if you are planning to use SNO only and not full cluster keep the IP address the same as your infra
+# as you do not need an infra and this will make sure the ip forwarding and dns would work fine for sno
+sno_info:
+   - { vimid: '44', name: 'sno', macend: ':44:44', cpu: '12', mem: '64000', ign: '', ipadd: '10', clusterID: 'sno' }
+
 rhcos_download_url: https://mirror.openshift.com/pub/openshift-v4/x86_64/dependencies/rhcos/4.7/latest/
 rhcos:
    - rhcos-live-rootfs.x86_64.img
@@ -63,5 +68,5 @@ client_download_url: https://mirror.openshift.com/pub/openshift-v4/x86_64/client
 ocp_client:
    - openshift-install-linux.tar.gz
    - openshift-client-linux.tar.gz
-pullSecret: <Add: Your pullSecret from cloud.redhat.com encolose in single quotes '' >
-sshkey: <Add: Your public sshkey created on infra box encolose in single quotes '' >
+pullSecret: <Add Your pullSecret from cloud.redhat.com encolose in single quotes '' >
+sshkey: <Add Your public sshkey created on infra box encolose in single quotes '' >

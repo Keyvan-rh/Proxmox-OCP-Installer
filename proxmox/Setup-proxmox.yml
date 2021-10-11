@@ -48,16 +48,16 @@
                 post-down iptables -t nat -D PREROUTING -i vmbr0 -p tcp --dport 2222 -j DNAT --to {{ proxmox.subnet }}.{{ infra.ip }}:22
                 post-up iptables -t nat -A PREROUTING -i vmbr0 -p tcp --dport 9000 -j DNAT --to {{ proxmox.subnet }}.{{ infra.ip }}:9000
                 post-down iptables -t nat -D PREROUTING -i vmbr0 -p tcp --dport 9000 -j DNAT --to {{ proxmox.subnet }}.{{ infra.ip }}:9000
-                post-up iptables -t nat -A PREROUTING -i vmbr0 -p tcp --dport 22623 -j DNAT --to 192.168.70.10:22623
-                post-down iptables -t nat -D PREROUTING -i vmbr0 -p tcp --dport 22623 -j DNAT --to 192.168.70.10:22623
-                post-up iptables -t nat -A PREROUTING -i vmbr0 -p tcp --dport 80 -j DNAT --to 192.168.70.10:80
-                post-down iptables -t nat -D PREROUTING -i vmbr0 -p tcp --dport 80 -j DNAT --to 192.168.70.10:80
-                post-up iptables -t nat -A PREROUTING -i vmbr0 -p tcp --dport 6443 -j DNAT --to 192.168.70.10:6443
-                post-down iptables -t nat -D PREROUTING -i vmbr0 -p tcp --dport 6443 -j DNAT --to 192.168.70.10:6443
-                post-up iptables -t nat -A PREROUTING -i vmbr0 -p tcp --dport 8080 -j DNAT --to 192.168.70.10:8080
-                post-down iptables -t nat -D PREROUTING -i vmbr0 -p tcp --dport 8080 -j DNAT --to 192.168.70.10:8080
-                post-up iptables -t nat -A PREROUTING -i vmbr0 -p tcp --dport 443 -j DNAT --to 192.168.70.10:443
-                post-down iptables -t nat -D PREROUTING -i vmbr0 -p tcp --dport 443 -j DNAT --to 192.168.70.10:443
+                post-up iptables -t nat -A PREROUTING -i vmbr0 -p tcp --dport 22623 -j DNAT --to {{ proxmox.subnet }}.{{ infra.ip }}:22623
+                post-down iptables -t nat -D PREROUTING -i vmbr0 -p tcp --dport 22623 -j DNAT --to {{ proxmox.subnet }}.{{ infra.ip }}:22623
+                post-up iptables -t nat -A PREROUTING -i vmbr0 -p tcp --dport 80 -j DNAT --to {{ proxmox.subnet }}.{{ infra.ip }}:80
+                post-down iptables -t nat -D PREROUTING -i vmbr0 -p tcp --dport 80 -j DNAT --to {{ proxmox.subnet }}.{{ infra.ip }}:80
+                post-up iptables -t nat -A PREROUTING -i vmbr0 -p tcp --dport 6443 -j DNAT --to {{ proxmox.subnet }}.{{ infra.ip }}:6443
+                post-down iptables -t nat -D PREROUTING -i vmbr0 -p tcp --dport 6443 -j DNAT --to {{ proxmox.subnet }}.{{ infra.ip }}:6443
+                post-up iptables -t nat -A PREROUTING -i vmbr0 -p tcp --dport 8080 -j DNAT --to {{ proxmox.subnet }}.{{ infra.ip }}:8080
+                post-down iptables -t nat -D PREROUTING -i vmbr0 -p tcp --dport 8080 -j DNAT --to {{ proxmox.subnet }}.{{ infra.ip }}:8080
+                post-up iptables -t nat -A PREROUTING -i vmbr0 -p tcp --dport 443 -j DNAT --to {{ proxmox.subnet }}.{{ infra.ip }}:443
+                post-down iptables -t nat -D PREROUTING -i vmbr0 -p tcp --dport 443 -j DNAT --to {{ proxmox.subnet }}.{{ infra.ip }}:443
     - name: restart network service
       service:
         name: networking
