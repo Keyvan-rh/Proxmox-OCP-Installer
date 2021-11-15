@@ -8,8 +8,6 @@
       ansible.builtin.shell:
         cmd: "{{ item }}"
       with_items:
-        - "oc create -f templates/nfs-rbac.yaml -n default"
-        - "oc create -f templates/nfs-sc.yaml -n default"
-        - "oc create -f templates/OMV-nfs-provisioner-deployment.yaml -n default"
-      environment:
-        KUBECONFIG: '../ocp4/auth/kubeconfig'
+        - "oc create -f {{ playbook_dir }}/templates/nfs-rbac.yaml -n default"
+        - "oc create -f {{ playbook_dir }}/templates/nfs-sc.yaml -n default"
+        - "oc create -f {{ playbook_dir }}/templates/nfs-provisioner-deployment.yaml -n default"
