@@ -25,11 +25,11 @@ spec:
             - name: PROVISIONER_NAME
               value: nfs-provisioner
             - name: NFS_SERVER
-              value: {{ proxmox.subnet }}.{{ nfs.ip }}
+              value: {{ nfs.ip }}
             - name: NFS_PATH
               value: '{{ nfs.path }}'
       volumes:
         - name: nfs-provisioner-v
           nfs:
-            server: {{ proxmox.subnet }}.{{ nfs.ip }}
+            server: {{ nfs.ip }}
             path: '{{ nfs.path }}'
