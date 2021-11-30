@@ -81,7 +81,7 @@ Copy the vars-temp.yml to vars.yml and make necessary changes based on your envi
 
 ```
    cd "$inst_playbook"
-   cp vars-temp.yml vars.yml
+   cp template/vars-temp.yml vars.yml
    nano vars.yml
 ```
 
@@ -202,10 +202,12 @@ Before we start installing OCP cluster we need to update this file with your env
 [square]
 * IP address of your proxmox server
 * Name of your Proxmox server (default is pve)
-* domain name you like to use for OCP installation.
+* domain name you like to use for OCP installation "home.lab".
 * If you would like you can change the clusterID as well this is usefull if you are planning to have multiple OCP cluster installed.
 * IP address of the new VM that is acting as Infra/Helper
-* NFS serever information, IP address and the exported path  
+* NFS serever information, IP address and the exported path
+* add your openshift pull secret (you can get this from cloud.redhat.com)
+* add your public sshkey key, this is used for OCP vms so you can login to vms using core user
 
 ```
 proxmox:
@@ -216,21 +218,12 @@ domain: < you domain : example.lab >
 ext_haproxy_ip: <IP address of your Infra/Helper server>
 nfs_provisioner:
    - {ip: '<IP address of nfs server>', path: '<export path on nfs server>' }
+pullSecret: < Add your Pull secret from cloud.redhat.com > 
+sshkey: < Add your ssh pub key >
 ```
 The CreateCluster ansible script will use this data to setup your infra/helper and VMs for OCP cluster. 
 
 NOTE: Pay particular attention to the Mac addresses and IP addresses assiged to each machine if these are used in your network you can modified to fit your environment.
-
-==== [big teal]__**templates/install-config.yml**__
-
-
-In this file you need to add your continer registery Pull secret
-
-```
-   pullSecret: < Add your Pull secret from cloud.redhat.com > 
-   sshkey: < Add your ssh pub key >
-
-```
 
 image::PullSecret1.png[500,500]
 image::PullSecret2.png[500,500]
