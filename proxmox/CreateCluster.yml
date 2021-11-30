@@ -141,6 +141,7 @@
         - "/var/www/html/install"
         - "/tmp/openshift-*"
         - "/root/.kube"
+        - "{{ playbook_dir }}/templates/nfs-provisioner-deployment.yaml"
       tags:
          - prep_install
     - name: Create needed directories 
@@ -202,6 +203,7 @@
         mode: "u=rw,g=r,o=r"
       tags:
          - install_nfs
+         - instrall_ocp
 
   
 - name: Create OCP VMs and start them in sequence
