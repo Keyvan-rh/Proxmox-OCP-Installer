@@ -47,7 +47,7 @@ Ansible need to ssh with no password so lets fix that:
 
 Before we start building let's take a look at overal topology diagram and what we are trying to build:  
 
-image::ocp_on_proxmox.png[500,500]
+image::ocp_proxmox.png[500,500]
 
 As you can see our Proxmox will have two network bridge, One will be connecting to your home lan and has an IP address from your router (192.168.x.y)."Make sure to set this as an static IP"
 The second bridge is used for all VMs on Proxmox for OCP cluster. 
