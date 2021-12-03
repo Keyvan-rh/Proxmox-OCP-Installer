@@ -92,27 +92,27 @@ frontend insecurerouter
 
 backend controlplaneapi
     balance source
-    server {{ vms_info[0].name }} {{ proxmox.subnet }}.{{ vms_info[0].ipadd }}:6443 check
-    server {{ vms_info[1].name }} {{ proxmox.subnet }}.{{ vms_info[1].ipadd }}:6443 check
-    server {{ vms_info[2].name }} {{ proxmox.subnet }}.{{ vms_info[2].ipadd }}:6443 check
-    server {{ vms_info[3].name }} {{ proxmox.subnet }}.{{ vms_info[3].ipadd }}:6443 check
+    server {{ vms_info[0].name }} {{ proxmox.private_subnet }}{{ vms_info[0].ipadd }}:6443 check
+    server {{ vms_info[1].name }} {{ proxmox.private_subnet }}{{ vms_info[1].ipadd }}:6443 check
+    server {{ vms_info[2].name }} {{ proxmox.private_subnet }}{{ vms_info[2].ipadd }}:6443 check
+    server {{ vms_info[3].name }} {{ proxmox.private_subnet }}{{ vms_info[3].ipadd }}:6443 check
 
 
 backend controlplanemc
     balance source
-    server {{ vms_info[0].name }} {{ proxmox.subnet }}.{{ vms_info[0].ipadd }}:22623 check
-    server {{ vms_info[1].name }} {{ proxmox.subnet }}.{{ vms_info[1].ipadd }}:22623 check
-    server {{ vms_info[2].name }} {{ proxmox.subnet }}.{{ vms_info[2].ipadd }}:22623 check
-    server {{ vms_info[3].name }} {{ proxmox.subnet }}.{{ vms_info[3].ipadd }}:22623 check
+    server {{ vms_info[0].name }} {{ proxmox.private_subnet }}{{ vms_info[0].ipadd }}:22623 check
+    server {{ vms_info[1].name }} {{ proxmox.private_subnet }}{{ vms_info[1].ipadd }}:22623 check
+    server {{ vms_info[2].name }} {{ proxmox.private_subnet }}{{ vms_info[2].ipadd }}:22623 check
+    server {{ vms_info[3].name }} {{ proxmox.private_subnet }}{{ vms_info[3].ipadd }}:22623 check
 
 backend secure
     balance source
-    server {{ vms_info[4].name }} {{ proxmox.subnet }}.{{ vms_info[4].ipadd }}:443 check
-    server {{ vms_info[5].name }} {{ proxmox.subnet }}.{{ vms_info[5].ipadd }}:443 check
-    server {{ vms_info[6].name }} {{ proxmox.subnet }}.{{ vms_info[6].ipadd }}:443 check
+    server {{ vms_info[4].name }} {{ proxmox.private_subnet }}{{ vms_info[4].ipadd }}:443 check
+    server {{ vms_info[5].name }} {{ proxmox.private_subnet }}{{ vms_info[5].ipadd }}:443 check
+    server {{ vms_info[6].name }} {{ proxmox.private_subnet }}{{ vms_info[6].ipadd }}:443 check
 
 backend insecure
     balance source
-    server {{ vms_info[4].name }} {{ proxmox.subnet }}.{{ vms_info[4].ipadd }}:80 check
-    server {{ vms_info[5].name }} {{ proxmox.subnet }}.{{ vms_info[5].ipadd }}:80 check
-    server {{ vms_info[6].name }} {{ proxmox.subnet }}.{{ vms_info[6].ipadd }}:80 check
+    server {{ vms_info[4].name }} {{ proxmox.private_subnet }}{{ vms_info[4].ipadd }}:80 check
+    server {{ vms_info[5].name }} {{ proxmox.private_subnet }}{{ vms_info[5].ipadd }}:80 check
+    server {{ vms_info[6].name }} {{ proxmox.private_subnet }}{{ vms_info[6].ipadd }}:80 check

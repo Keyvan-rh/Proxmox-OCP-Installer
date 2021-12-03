@@ -4,29 +4,30 @@
 #group=dnsmasq
 
 conf-dir=/etc/dnsmasq.d,.rpmnew,.rpmsave,.rpmorig
-listen-address=::1,127.0.0.1,{{ proxmox.subnet }}.{{ proxmox.ip }},{{ proxmox.home_lan_ip }}
+listen-address=::1,127.0.0.1,{{ proxmox.private_ip }},{{ proxmox.public_ip }}
 #expand-hosts
 strict-order
 domain={{ domain }}
 #resolv-file=/tmp/resolv.dnsmasq
 resolv-file=/etc/resolv.dnsmasq
 #pse boot
-dhcp-boot=pxelinux.0,{{ infra.name }},{{ proxmox.subnet }}.{{ infra.ip }}
+dhcp-boot=pxelinux.0,{{ infra.name }},{{ infra.ip }}
 dhcp-authoritative
-dhcp-range={{ proxmox.subnet }}.2,{{ proxmox.subnet }}.250,255.255.255.0,1440m
-dhcp-option=3,{{ proxmox.subnet }}.{{ proxmox.ip }}
-dhcp-option=6,{{ proxmox.subnet }}.{{ proxmox.ip }},1.1.1.1
+dhcp-range={{ proxmox.private_subnet }}2,{{ proxmox.private_subnet }}250,255.255.255.0,1440m
+dhcp-option=3,{{ proxmox.private_ip }}
+dhcp-option=6,{{ proxmox.private_ip }},1.1.1.1
 
 # ocp
 dhcp-host={{ ansible_default_ipv4.macaddress }},{{ proxmox.name }},{{ ansible_default_ipv4.address }},infinite
-dhcp-host={{ macstart }}{{ mac }}{{ vms_info[0].macend }},{{ vms_info[0].name }},{{ proxmox.subnet }}.{{ vms_info[0].ipadd }},infinite
-dhcp-host={{ macstart }}{{ mac }}{{ vms_info[1].macend }},{{ vms_info[1].name }},{{ proxmox.subnet }}.{{ vms_info[1].ipadd }},infinite
-dhcp-host={{ macstart }}{{ mac }}{{ vms_info[2].macend }},{{ vms_info[2].name }},{{ proxmox.subnet }}.{{ vms_info[2].ipadd }},infinite
-dhcp-host={{ macstart }}{{ mac }}{{ vms_info[3].macend }},{{ vms_info[3].name }},{{ proxmox.subnet }}.{{ vms_info[3].ipadd }},infinite
-dhcp-host={{ macstart }}{{ mac }}{{ vms_info[4].macend }},{{ vms_info[4].name }},{{ proxmox.subnet }}.{{ vms_info[4].ipadd }},infinite
-dhcp-host={{ macstart }}{{ mac }}{{ vms_info[5].macend }},{{ vms_info[5].name }},{{ proxmox.subnet }}.{{ vms_info[5].ipadd }},infinite
-dhcp-host={{ macstart }}{{ mac }}{{ vms_info[6].macend }},{{ vms_info[6].name }},{{ proxmox.subnet }}.{{ vms_info[6].ipadd }},infinite
-dhcp-host={{ macstart }}{{ mac }}{{ sno_info[0].macend }},{{ sno_info[0].name }},{{ proxmox.subnet }}.{{ sno_info[0].ipadd }},infinite
+dhcp-host={{ macstart }}{{ mac }}{{ vms_info[0].macend }},{{ vms_info[0].name }},{{ proxmox.private_subnet }}{{ vms_info[0].ipadd }},infinite
+dhcp-host={{ macstart }}{{ mac }}{{ vms_info[1].macend }},{{ vms_info[1].name }},{{ proxmox.private_subnet }}{{ vms_info[1].ipadd }},infinite
+dhcp-host={{ macstart }}{{ mac }}{{ vms_info[2].macend }},{{ vms_info[2].name }},{{ proxmox.private_subnet }}{{ vms_info[2].ipadd }},infinite
+dhcp-host={{ macstart }}{{ mac }}{{ vms_info[3].macend }},{{ vms_info[3].name }},{{ proxmox.private_subnet }}{{ vms_info[3].ipadd }},infinite
+dhcp-host={{ macstart }}{{ mac }}{{ vms_info[4].macend }},{{ vms_info[4].name }},{{ proxmox.private_subnet }}{{ vms_info[4].ipadd }},infinite
+dhcp-host={{ macstart }}{{ mac }}{{ vms_info[5].macend }},{{ vms_info[5].name }},{{ proxmox.private_subnet }}{{ vms_info[5].ipadd }},infinite
+dhcp-host={{ macstart }}{{ mac }}{{ vms_info[6].macend }},{{ vms_info[6].name }},{{ proxmox.private_subnet }}{{ vms_info[6].ipadd }},infinite
+dhcp-host={{ macstart }}{{ mac }}{{ sno_info[0].macend }},{{ sno_info[0].name }},{{ proxmox.public_subnet }}{{ sno_info[0].ipadd }},infinite
+dhcp-host={{ macstart }}{{ mac }}{{ sno_info[1].macend }},{{ sno_info[1].name }},{{ proxmox.public_subnet }}{{ sno_info[1].ipadd }},infinite
 
 #bogus-priv
 stop-dns-rebind
@@ -36,20 +37,28 @@ cache-size=1500
 
 # ocp
 address=/{{ proxmox.name }}/{{ ansible_default_ipv4.address }}
-address=/api-int.{{ clusterID }}.{{ domain }}/{{ proxmox.subnet }}.{{ infra.ip }}
-address=/api.{{ clusterID }}.{{ domain }}/{{ proxmox.subnet }}.{{ infra.ip }}
-address=/*/apps.{{ clusterID }}.{{ domain }}/{{ proxmox.home_lan_ip }}
-address=/{{ vms_info[0].name }}.{{ domain }}/{{ proxmox.subnet }}.{{ vms_info[0].ipadd }}
-address=/{{ vms_info[1].name }}.{{ clusterID }}.{{ domain }}/{{ proxmox.subnet }}.{{ vms_info[1].ipadd }}
-address=/{{ vms_info[2].name }}.{{ clusterID }}.{{ domain }}/{{ proxmox.subnet }}.{{ vms_info[2].ipadd }}
-address=/{{ vms_info[3].name }}.{{ clusterID }}.{{ domain }}/{{ proxmox.subnet }}.{{ vms_info[3].ipadd }}
-address=/{{ vms_info[1].name }}.{{ domain }}/{{ proxmox.subnet }}.{{ vms_info[1].ipadd }}
-address=/{{ vms_info[2].name }}.{{ domain }}/{{ proxmox.subnet }}.{{ vms_info[2].ipadd }}
-address=/{{ vms_info[3].name }}.{{ domain }}/{{ proxmox.subnet }}.{{ vms_info[3].ipadd }}
-address=/{{ vms_info[4].name }}.{{ domain }}/{{ proxmox.subnet }}.{{ vms_info[4].ipadd }}
-address=/{{ vms_info[5].name }}.{{ domain }}/{{ proxmox.subnet }}.{{ vms_info[5].ipadd }}
-address=/{{ vms_info[6].name }}.{{ domain }}/{{ proxmox.subnet }}.{{ vms_info[6].ipadd }}
+address=/api-int.{{ clusterID }}.{{ domain }}/{{ infra.ip }}
+address=/api.{{ clusterID }}.{{ domain }}/{{ infra.ip }}
+address=/*/apps.{{ clusterID }}.{{ domain }}/{{ proxmox.public_ip }}
+address=/{{ vms_info[0].name }}.{{ domain }}/{{ proxmox.private_subnet }}{{ vms_info[0].ipadd }}
+address=/{{ vms_info[1].name }}.{{ clusterID }}.{{ domain }}/{{ proxmox.private_subnet }}{{ vms_info[1].ipadd }}
+address=/{{ vms_info[2].name }}.{{ clusterID }}.{{ domain }}/{{ proxmox.private_subnet }}{{ vms_info[2].ipadd }}
+address=/{{ vms_info[3].name }}.{{ clusterID }}.{{ domain }}/{{ proxmox.private_subnet }}{{ vms_info[3].ipadd }}
+address=/{{ vms_info[1].name }}.{{ domain }}/{{ proxmox.private_subnet }}{{ vms_info[1].ipadd }}
+address=/{{ vms_info[2].name }}.{{ domain }}/{{ proxmox.private_subnet }}{{ vms_info[2].ipadd }}
+address=/{{ vms_info[3].name }}.{{ domain }}/{{ proxmox.private_subnet }}{{ vms_info[3].ipadd }}
+address=/{{ vms_info[4].name }}.{{ domain }}/{{ proxmox.private_subnet }}{{ vms_info[4].ipadd }}
+address=/{{ vms_info[5].name }}.{{ domain }}/{{ proxmox.private_subnet }}{{ vms_info[5].ipadd }}
+address=/{{ vms_info[6].name }}.{{ domain }}/{{ proxmox.private_subnet }}{{ vms_info[6].ipadd }}
 
 # ocp-sno
-address=/api.{{ sno_info[0].clusterID }}.{{ domain }}/{{ proxmox.subnet }}.{{ sno_info[0].ipadd }}
-address=/*/apps.{{ sno_info[0].clusterID }}.{{ domain }}/{{ proxmox.subnet }}.{{ sno_info[0].ipadd }}
+address=/api-int.{{ sno_info[0].clusterID }}.{{ domain }}/{{ proxmox.public_subnet }}{{ sno_info[0].ipadd }}
+address=/api.{{ sno_info[0].clusterID }}.{{ domain }}/{{ proxmox.public_subnet }}{{ sno_info[0].ipadd }}
+address=/*/apps.{{ sno_info[0].clusterID }}.{{ domain }}/{{ proxmox.public_subnet }}{{ sno_info[0].ipadd }}
+address=/{{ sno_info[0].clusterID }}.{{ domain }}/{{ proxmox.public_subnet }}{{ sno_info[0].ipadd }}
+
+# ocp2-sno
+address=/api-int.{{ sno_info[1].clusterID }}.{{ domain }}/{{ proxmox.public_subnet }}{{ sno_info[1].ipadd }}
+address=/api.{{ sno_info[1].clusterID }}.{{ domain }}/{{ proxmox.public_subnet }}{{ sno_info[1].ipadd }}
+address=/*/apps.{{ sno_info[1].clusterID }}.{{ domain }}/{{ proxmox.public_subnet }}{{ sno_info[1].ipadd }}
+address=/{{ sno_info[1].clusterID }}.{{ domain }}/{{ proxmox.public_subnet }}{{ sno_info[1].ipadd }}

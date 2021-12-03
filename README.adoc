@@ -81,7 +81,7 @@ Copy the vars-temp.yml to vars.yml and make necessary changes based on your envi
 
 ```
    cd "$inst_playbook"
-   cp template/vars-temp.yml vars.yml
+   cp templates/vars-temp.yml vars.yml
    nano vars.yml
 ```
 
