@@ -1,0 +1,75 @@
+proxmox:
+  private_ip: < full IP address of your proxmox>
+  private_subnet: 192.168.100.
+  public_ip: 192.168.1.74
+  public_subnet: 192.168.1.
+  name: 'pve'
+  packages:
+    - dnsmasq
+    - python3-apt
+    - net-tools
+  ports:
+    - 53/tcp
+    - 53/udp
+infra:
+  ip: < ip address. for example: 192.168.100.10 >
+  name: infra
+  pxeboot_path: '/var/lib/tftpboot/pxelinux.cfg/'
+  packages:
+   - httpd
+   - tftp-server
+   - tftp
+   - haproxy
+   - syslinux
+   - bind-utils
+   - tar
+   - wget
+   - net-tools
+  ports:
+   - 67/udp
+   - 53/tcp
+   - 53/udp
+   - 443/tcp
+   - 80/tcp
+   - 8080/tcp
+   - 6443/tcp
+   - 6443/udp
+   - 22623/tcp
+   - 9000/tcp
+nfs:
+  ip: <Add teh IP address of your NFS server 192.168.1.3>
+  path: '/export/openshift'
+dns_gatway:
+  ip: 0
+domain: < domain test.lab>
+macstart: '52:50:56:'
+mac: '11'
+vimidStart: '20'
+#vms_subnet: private
+vms_info:
+   - { vimid: '0', name: 'bootstrap', macend: ':11:11', cpu: '8', mem: '16384', ign: 'pxe-bootstrap.j2', ipadd: '120' }
+   - { vimid: '1', name: 'master0', macend: ':22:11', cpu: '8', mem: '32768', ign: 'pxe-master.j2', ipadd: '121' }
+   - { vimid: '2', name: 'master1', macend: ':22:22', cpu: '8', mem: '32768', ign: 'pxe-master.j2', ipadd: '122' }
+   - { vimid: '3', name: 'master2', macend: ':22:33', cpu: '8', mem: '32768', ign: 'pxe-master.j2', ipadd: '123' }
+   - { vimid: '4', name: 'worker0', macend: ':33:11', cpu: '8', mem: '32768', ign: 'pxe-worker.j2', ipadd: '111' }
+   - { vimid: '5', name: 'worker1', macend: ':33:22', cpu: '8', mem: '32768', ign: 'pxe-worker.j2', ipadd: '112' }
+   - { vimid: '6', name: 'worker2', macend: ':33:33', cpu: '8', mem: '32768', ign: 'pxe-worker.j2', ipadd: '113' }
+
+# if you are planning to use SNO only and not full cluster keep the IP address the same as your infra
+# as you do not need an infra and this will make sure the ip forwarding and dns would work fine for sno
+# sno_subnet: public
+sno_info:
+   - { vimid: '44', name: 'sno1', macend: ':44:11', cpu: '12', mem: '94000', ign: '', ipadd: '140', clusterID: 'sno1' }
+   - { vimid: '45', name: 'sno2', macend: ':44:22', cpu: '12', mem: '94000', ign: '', ipadd: '150', clusterID: 'sno2' }
+
+rhcos_download_url: https://mirror.openshift.com/pub/openshift-v4/x86_64/dependencies/rhcos/4.14/latest
+rhcos:
+   - rhcos-live-rootfs.x86_64.img
+   - rhcos-live-kernel-x86_64
+   - rhcos-live-initramfs.x86_64.img
+client_download_url: https://mirror.openshift.com/pub/openshift-v4/x86_64/clients/ocp/latest-4.14
+ocp_client:
+   - openshift-install-linux.tar.gz
+   - openshift-client-linux.tar.gz
+pullSecret: <Add Your pullSecret from cloud.redhat.com encolose in single quotes '' >
+sshkey: <Add Your public sshkey created on infra box encolose in single quotes '' >
