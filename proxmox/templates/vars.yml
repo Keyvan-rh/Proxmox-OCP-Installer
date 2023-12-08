@@ -42,6 +42,7 @@ nfs:
 dns_gatway:
   ip: 0
 domain: < domain test.lab>
+clusterID: <this will be added to domin to create url for openshift. example ocp4>
 macstart: '52:50:56:'
 mac: '11'
 vimidStart: '20'
